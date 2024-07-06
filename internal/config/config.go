@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
-	"github.com/labstack/gommon/log"
 )
 
 const (
@@ -18,9 +17,10 @@ const (
 const envConfigPath = "CONFIG_PATH"
 
 type Config struct {
-	Env    string  `yaml:"env" env-default:"prod" env-required:"true"`
-	DbPath string  `yaml:"db_path" env-required:"true"`
-	Server *Server `yaml:"server" env-required:"true"`
+	Env     string  `yaml:"env" env-default:"prod" env-required:"true"`
+	DbPath  string  `yaml:"db_path" env-required:"true" default:""`
+	LogPath string  `yaml:"log_path" env-required:"true"`
+	Server  *Server `yaml:"server" env-required:"true"`
 }
 
 type Server struct {
@@ -39,24 +39,24 @@ func MustRead() *Config {
 		err := godotenv.Load()
 
 		if err != nil {
-			log.Fatal("Error loading .env file")
+			panic("Error loading .env file")
 		}
 	}
 
 	configPath := os.Getenv(envConfigPath)
 
-	if configPath == "" {
-		log.Fatalf("%s is empty", envConfigPath)
+	if len(configPath) == 0 {
+		panic("Config file path not found in environment")
 	}
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatalf("config file does not exists by path: %s", configPath)
+		panic("Config file does not exists by path: " + configPath)
 	}
 
 	config := Config{}
 
 	if err := cleanenv.ReadConfig(configPath, &config); err != nil {
-		log.Fatal("Error while config read")
+		panic("Error while config read")
 	}
 
 	return &config
