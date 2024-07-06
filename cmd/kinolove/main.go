@@ -4,11 +4,21 @@ import (
 	"github.com/rs/zerolog"
 	"kinolove/internal/config"
 	"kinolove/internal/logger"
+	"os"
 )
 
 func main() {
 	cfg := config.MustRead()
-	log := logger.MustSetUp(cfg)
+	log, logFile := logger.MustSetUp(cfg)
+
+	if logFile != nil {
+		defer func(logFile *os.File) {
+			err := logFile.Close()
+			if err != nil {
+				log.Fatal().Err(err).Msg("failed to close log file")
+			}
+		}(logFile)
+	}
 
 	printStartMessage(log, cfg)
 }

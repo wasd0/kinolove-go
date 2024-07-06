@@ -9,9 +9,10 @@ import (
 	"time"
 )
 
-func MustSetUp(cfg *config.Config) *zerolog.Logger {
+func MustSetUp(cfg *config.Config) (*zerolog.Logger, *os.File) {
 	var output io.Writer
 	var level zerolog.Level
+	var file *os.File
 
 	switch cfg.Env {
 	case config.EnvDev, config.EnvStage:
@@ -24,13 +25,14 @@ func MustSetUp(cfg *config.Config) *zerolog.Logger {
 		}
 	case config.EnvProd:
 		level = zerolog.ErrorLevel
-		output = initOutputFile(cfg)
+		file = initOutputFile(cfg)
+		output = file
 	}
 
 	zerolog.SetGlobalLevel(level)
 
 	logger := zerolog.New(output).With().Timestamp().Caller().Logger()
-	return &logger
+	return &logger, file
 }
 
 func initOutputFile(cfg *config.Config) *os.File {
