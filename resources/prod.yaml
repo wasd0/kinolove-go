@@ -1,5 +1,6 @@
 env: prod
 db_path: ./resources/db/prod.db
+log_path: kinolove/log
 
 server:
   port: 8102
