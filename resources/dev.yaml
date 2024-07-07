@@ -1,6 +1,5 @@
 env: dev
 db_path: ./resources/db/dev.db
-log_path: kinolove/log
 
 server:
   port: 8100

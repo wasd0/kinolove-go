@@ -19,7 +19,7 @@ const envConfigPath = "CONFIG_PATH"
 type Config struct {
 	Env     string  `yaml:"env" env-default:"prod" env-required:"true"`
 	DbPath  string  `yaml:"db_path" env-required:"true" default:""`
-	LogPath string  `yaml:"log_path" env-required:"true"`
+	LogPath string  `yaml:"log_path"`
 	Server  *Server `yaml:"server" env-required:"true"`
 }
 

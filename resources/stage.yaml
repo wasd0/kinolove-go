@@ -1,6 +1,5 @@
 env: stage
 db_path: ./resources/db/dev.db
-log_path: kinolove/log
 
 server:
   port: 8101
