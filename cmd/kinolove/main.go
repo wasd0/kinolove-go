@@ -1,22 +1,32 @@
 package main
 
 import (
+	"github.com/rs/zerolog"
 	"kinolove/internal/config"
 	"kinolove/internal/logger"
-	"log/slog"
+	"os"
 )
 
 func main() {
 	cfg := config.MustRead()
-	log := logger.MustSetUp(cfg.Env)
+	log, logFile := logger.MustSetUp(cfg)
+
+	if logFile != nil {
+		defer func(logFile *os.File) {
+			err := logFile.Close()
+			if err != nil {
+				log.Fatal().Err(err).Msg("failed to close log file")
+			}
+		}(logFile)
+	}
 
 	printStartMessage(log, cfg)
 }
 
-func printStartMessage(log *slog.Logger, cfg *config.Config) {
-	log.Info("Server started",
-		slog.String("host", cfg.Server.Host),
-		slog.String("port", cfg.Server.Port),
-		slog.String("env", cfg.Env),
-		slog.String("db_path", cfg.DbPath))
+func printStartMessage(log *zerolog.Logger, cfg *config.Config) {
+	log.Info().Msg("Server started")
+	log.Info().Msgf("Host: %s", cfg.Server.Host)
+	log.Info().Msgf("Port: %s", cfg.Server.Port)
+	log.Info().Msgf("ENV: %s", cfg.Env)
+	log.Info().Msgf("DB PATH: %s", cfg.DbPath)
 }
