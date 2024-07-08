@@ -17,13 +17,13 @@ const (
 const envConfigPath = "CONFIG_PATH"
 
 type Config struct {
-	Env     string  `yaml:"env" env-default:"prod" env-required:"true"`
-	DbPath  string  `yaml:"db_path" env-required:"true" default:""`
-	LogPath string  `yaml:"log_path"`
-	Server  *Server `yaml:"server" env-required:"true"`
+	Env     string `yaml:"env" env-default:"prod" env-required:"true"`
+	DbPath  string `yaml:"db_path" env-required:"true" default:""`
+	LogPath string `yaml:"log_path"`
+	Server  server `yaml:"server" env-required:"true"`
 }
 
-type Server struct {
+type server struct {
 	Port        string        `yaml:"port" env-default:"8100"`
 	Host        string        `yaml:"host" env-default:"localhost"`
 	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
@@ -56,7 +56,7 @@ func MustRead() *Config {
 	config := Config{}
 
 	if err := cleanenv.ReadConfig(configPath, &config); err != nil {
-		panic("Error while config read")
+		panic("Error while Config read")
 	}
 
 	return &config

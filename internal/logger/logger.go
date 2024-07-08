@@ -40,7 +40,7 @@ func initOutputFile(cfg *config.Config) *os.File {
 		panic("No log file path")
 	}
 
-	logFileName := time.Now().Format("2006-01-02") + ".log"
+	logFileName := time.Now().Format("2006-01-02.log")
 	logFilePath := utils.CreateDirectoriesIfNotExists(cfg.LogPath)
 	logFilePath.WriteString(utils.Separator)
 	logFilePath.WriteString(logFileName)
