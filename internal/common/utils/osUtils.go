@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"kinolove/internal/logger"
 	"os"
 	"strings"
 )
@@ -34,6 +35,13 @@ func CreateDirectoriesIfNotExists(envPath string) *strings.Builder {
 	}
 
 	return &fullPath
+}
+
+func CloseFile(log logger.Common, file *os.File) {
+	err := file.Close()
+	if err != nil {
+		log.Fatal(err, "failed to close file")
+	}
 }
 
 // ConvertEnvPath converts a path from the environment into a suitable path for the OS.
