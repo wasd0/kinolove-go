@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:15.0
+    container_name: kinolove-db
+    environment:
+      POSTGRES_DB: "kinolove"
+      POSTGRES_USER: "wasd"
+      POSTGRES_PASSWORD: "123"
+    ports:
+      - "5532:5432"

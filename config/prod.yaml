@@ -1,8 +1,8 @@
-env: stage
-db_path: ./resources/db/dev.db
+env: prod
+log_path: kinolove/log
 
 server:
-  port: 8101
+  port: 8102
   host: localhost
   timeout: 4s
   idle_timeout: 60s
