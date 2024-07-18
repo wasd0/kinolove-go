@@ -1,11 +1,12 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
+	"kinolove/internal/common/constants"
 	"os"
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -14,11 +15,8 @@ const (
 	EnvStage = "stage"
 )
 
-const envConfigPath = "CONFIG_PATH"
-
 type Config struct {
 	Env     string `yaml:"env" env-default:"prod" env-required:"true"`
-	DbPath  string `yaml:"db_path" env-required:"true" default:""`
 	LogPath string `yaml:"log_path"`
 	Server  server `yaml:"server" env-required:"true"`
 }
@@ -43,7 +41,7 @@ func MustRead() *Config {
 		}
 	}
 
-	configPath := os.Getenv(envConfigPath)
+	configPath := os.Getenv(constants.EnvPath)
 
 	if len(configPath) == 0 {
 		panic("Config file path not found in environment")
