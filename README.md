@@ -2,6 +2,7 @@
 
 - [docker compose](https://docs.docker.com/compose/install/)
 - [goose - migration tool](https://github.com/pressly/goose)
+- [jet - sql generator](https://github.com/go-jet/jet)
 
 ## Getting started
 
@@ -24,6 +25,24 @@ For macOS users `goose` is available as a [Homebrew Formulae](https://formulae.b
 ```shell
 brew install goose
 ```
+
+- ### Install jet
+
+Jet generator can be installed in one of the following ways:
+
+- (Go1.16+) Install jet generator using go install:
+```sh
+go install github.com/go-jet/jet/v2/cmd/jet@latest
+```
+*Jet generator is installed to the directory named by the GOBIN environment variable,
+which defaults to $GOPATH/bin or $HOME/go/bin if the GOPATH environment variable is not set.*
+
+- Install jet generator to specific folder:
+```sh
+git clone https://github.com/go-jet/jet.git
+cd jet && go build -o dir_path ./cmd/jet
+```
+*Make sure `dir_path` folder is added to the PATH environment variable.*
 
 - ### Add environment `.env` file to project directory. See `.env.example`.
 
