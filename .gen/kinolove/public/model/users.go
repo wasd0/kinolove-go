@@ -15,7 +15,7 @@ import (
 type Users struct {
 	ID          uuid.UUID `sql:"primary_key"`
 	Username    string
-	Password    string
+	Password    []byte
 	IsActive    *bool
 	DateReg     *time.Time
 	DatePassUpd *time.Time
