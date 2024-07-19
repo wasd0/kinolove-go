@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"github.com/go-jet/jet/v2/postgres"
+	"kinolove/.gen/kinolove/public/model"
+	"kinolove/.gen/kinolove/public/table"
 	"kinolove/internal/config"
 	"kinolove/internal/logger"
 	"kinolove/internal/logger/zerolog"
@@ -14,21 +18,26 @@ func main() {
 
 	printStartMessage(log, cfg)
 
-	db, callback := postgresql.MustOpenConnect(log)
+	storage, callback := postgresql.MustOpenConnect(log)
 	defer callback()
 
-	type res struct {
-		Val interface{} `ksql:"res"`
+	//todo remove this
+	stmt := postgres.SELECT(table.Users.AllColumns).FROM(table.Users)
+
+	var dest []struct {
+		model.Users
 	}
 
-	response := res{}
-
-	//todo remove this
-	if err := db.SelectOne(&response, "select 'hello world' as res"); err != nil {
+	err := stmt.Query(storage.Db, &dest)
+	if err != nil {
 		log.Fatal(err, "Failed to execute query")
 	}
 
-	log.Infof("Result: %v", response)
+	for _, user := range dest {
+		if user.IsActive != nil {
+			fmt.Println(*user.IsActive)
+		}
+	}
 }
 
 func printStartMessage(log logger.Common, cfg *config.Config) {
