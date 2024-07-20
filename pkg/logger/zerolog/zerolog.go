@@ -1,9 +1,10 @@
 package zerolog
 
 import (
+	"fmt"
 	"io"
-	"kinolove/internal/common/utils"
 	"kinolove/internal/config"
+	"kinolove/pkg/utils"
 	"os"
 	"time"
 
@@ -67,7 +68,8 @@ func MustSetUp(cfg *config.Config) (*Zerolog, func()) {
 
 	return logger, func() {
 		if file != nil {
-			utils.CloseFile(logger, file)
+			err := utils.CloseFile(file)
+			logger.Fatal(err, "Error while closing file")
 		}
 	}
 }
@@ -87,18 +89,23 @@ func initOutputFile(cfg *config.Config) *os.File {
 	}
 
 	logFileName := time.Now().Format("2006-01-02.log")
-	logFilePath := utils.CreateDirectoriesIfNotExists(cfg.LogPath)
+	logFilePath, err := utils.CreateDirectoriesIfNotExists(cfg.LogPath)
+
+	if err != nil {
+		panic(fmt.Errorf("error while creating log file directories by path: %v", cfg.LogPath))
+	}
+
 	logFilePath.WriteString(utils.Separator)
 	logFilePath.WriteString(logFileName)
 
-	file, err := os.OpenFile(
+	file, openFileErr := os.OpenFile(
 		logFilePath.String(),
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 		0664,
 	)
 
-	if err != nil {
-		panic(err)
+	if openFileErr != nil {
+		panic(fmt.Errorf("error opening file: %v", file))
 	}
 
 	return file
