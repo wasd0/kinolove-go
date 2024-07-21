@@ -3,6 +3,7 @@ package app
 import (
 	"kinolove/internal/config"
 	"kinolove/internal/repository"
+	"kinolove/internal/service"
 	"kinolove/internal/storage"
 	"kinolove/pkg/logger"
 	"kinolove/pkg/logger/zerolog"
@@ -14,11 +15,12 @@ func Startup() func() {
 	log, loggerCallback := zerolog.MustSetUp(cfg)
 	pg, storageCallback := storage.MustOpenPostgres(log)
 
-	userRepo := repository.NewUserRepository(pg.Db)
-
-	_ = userRepo
+	var userRepo repository.UserRepository = repository.NewUserRepository(pg.Db)
+	var userService = service.NewUserService(userRepo)
 
 	printStartMessage(log, cfg)
+
+	_ = userService
 
 	return func() {
 		loggerCallback()

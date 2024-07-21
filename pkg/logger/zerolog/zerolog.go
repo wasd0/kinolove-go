@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 	"kinolove/internal/config"
-	"kinolove/pkg/utils"
+	os2 "kinolove/pkg/utils/os"
 	"os"
 	"time"
 
@@ -68,7 +68,7 @@ func MustSetUp(cfg *config.Config) (*Zerolog, func()) {
 
 	return logger, func() {
 		if file != nil {
-			err := utils.CloseFile(file)
+			err := os2.CloseFile(file)
 			logger.Fatal(err, "Error while closing file")
 		}
 	}
@@ -89,13 +89,13 @@ func initOutputFile(cfg *config.Config) *os.File {
 	}
 
 	logFileName := time.Now().Format("2006-01-02.log")
-	logFilePath, err := utils.CreateDirectoriesIfNotExists(cfg.LogPath)
+	logFilePath, err := os2.CreateDirectoriesIfNotExists(cfg.LogPath)
 
 	if err != nil {
-		panic(fmt.Errorf("error while creating log file directories by path: %v", cfg.LogPath))
+		panic(fmt.Errorf("errorUtils while creating log file directories by path: %v", cfg.LogPath))
 	}
 
-	logFilePath.WriteString(utils.Separator)
+	logFilePath.WriteString(os2.Separator)
 	logFilePath.WriteString(logFileName)
 
 	file, openFileErr := os.OpenFile(
@@ -105,7 +105,7 @@ func initOutputFile(cfg *config.Config) *os.File {
 	)
 
 	if openFileErr != nil {
-		panic(fmt.Errorf("error opening file: %v", file))
+		panic(fmt.Errorf("errorUtils opening file: %v", file))
 	}
 
 	return file

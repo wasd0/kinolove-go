@@ -1,4 +1,4 @@
-package bcrypt
+package crypt
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ func Encode(password string) ([]byte, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
-		err = fmt.Errorf("error hashing password: %v", err)
+		err = fmt.Errorf("errorUtils hashing password: %v", err)
 	}
 
 	return bytes, err

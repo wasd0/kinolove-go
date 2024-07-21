@@ -3,7 +3,7 @@ package storage
 import (
 	"database/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"kinolove/internal/common/constants"
+	"kinolove/pkg/constants"
 	"kinolove/pkg/logger"
 	"os"
 )

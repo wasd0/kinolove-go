@@ -16,7 +16,7 @@ type Users struct {
 	ID          uuid.UUID `sql:"primary_key"`
 	Username    string
 	Password    []byte
-	IsActive    *bool
+	IsActive    bool
 	DateReg     *time.Time
 	DatePassUpd *time.Time
 }

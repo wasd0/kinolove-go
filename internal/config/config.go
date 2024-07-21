@@ -1,7 +1,7 @@
 package config
 
 import (
-	"kinolove/internal/common/constants"
+	"kinolove/pkg/constants"
 	"os"
 	"time"
 
