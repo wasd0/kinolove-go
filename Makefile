@@ -8,7 +8,7 @@ build:
 test:
 	@go test -v ./...
 	
-run: migrate
+run:
 	@chmod +x scripts/run.sh && scripts/run.sh ${BIN_PATH}
 
 clean:
