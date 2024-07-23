@@ -2,6 +2,6 @@ env: stage
 
 server:
   port: 8101
-  host: localhost
+  host: 
   timeout: 4s
   idle_timeout: 60s

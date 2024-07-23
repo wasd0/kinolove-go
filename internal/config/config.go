@@ -23,7 +23,7 @@ type Config struct {
 
 type server struct {
 	Port        string        `yaml:"port" env-default:"8100"`
-	Host        string        `yaml:"host" env-default:"localhost"`
+	Host        string        `yaml:"host" env-default:""`
 	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"69s"`
 }

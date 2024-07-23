@@ -2,6 +2,6 @@ env: dev
 
 server:
   port: 8100
-  host: localhost
+  host: 
   timeout: 4s
   idle_timeout: 60s

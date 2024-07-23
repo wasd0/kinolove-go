@@ -3,6 +3,6 @@ log_path: kinolove/log
 
 server:
   port: 8102
-  host: localhost
+  host: 
   timeout: 4s
   idle_timeout: 60s
