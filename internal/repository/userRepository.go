@@ -62,7 +62,7 @@ func (r *UserPgRepo) Save(entity *model.Users) error {
 		RETURNING(r.users.AllColumns)
 	err := stmt.Query(r.db, entity)
 	if err != nil {
-		err = errorUtils.TryGetPgxErr(err, "Failed save entity")
+		err = errorUtils.GetPgxErr(err, constants.Insert, "Failed save entity")
 	}
 
 	return err
@@ -81,8 +81,35 @@ func (r *UserPgRepo) ExistsByUsername(username string) (bool, error) {
 	err := stmt.Query(r.db, &res)
 
 	if err != nil {
-		err = errorUtils.TryGetPgxErr(err, "Failed check user exists by username")
+		err = errorUtils.GetPgxErr(err, constants.Select, "Failed check user exists by username")
 	}
 
 	return res.Exists, err
+}
+
+func (r *UserPgRepo) Update(entity *model.Users) error {
+	stmt := r.users.UPDATE(r.users.MutableColumns).
+		MODEL(entity).
+		WHERE(r.users.ID.EQ(postgres.UUID(entity.ID)))
+
+	_, err := stmt.Exec(r.db)
+
+	if err != nil {
+		return errorUtils.GetPgxErr(err, constants.Update, "error while updating movies")
+	}
+
+	return nil
+}
+
+func (r *UserPgRepo) FindAll() (*[]*model.Users, error) {
+	users := make([]*model.Users, 0)
+
+	stmt := postgres.SELECT(r.users.AllColumns).FROM(r.users)
+	err := stmt.Query(r.db, &users)
+
+	if err != nil {
+		return nil, errorUtils.GetPgxErr(err, constants.Select, "Failed find all users")
+	}
+
+	return &users, nil
 }

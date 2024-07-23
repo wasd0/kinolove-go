@@ -15,12 +15,19 @@ func Startup() func() {
 	log, loggerCallback := zerolog.MustSetUp(cfg)
 	pg, storageCallback := storage.MustOpenPostgres(log)
 
-	var userRepo repository.UserRepository = repository.NewUserRepository(pg.Db)
-	var userService = service.NewUserService(userRepo)
+	var (
+		userRepo     repository.UserRepository  = repository.NewUserRepository(pg.Db)
+		userService  service.UserService        = service.NewUserService(userRepo)
+		movieRepo    repository.MovieRepository = repository.NewMoviesRepository(pg.Db)
+		movieService service.MovieService       = service.NewMovieService(movieRepo)
+	)
 
 	printStartMessage(log, cfg)
 
 	_ = userService
+	_ = movieService
+
+	//todo implement graceful shutdown
 
 	return func() {
 		loggerCallback()

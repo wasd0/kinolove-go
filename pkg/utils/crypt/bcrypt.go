@@ -9,7 +9,7 @@ func Encode(password string) ([]byte, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
-		err = fmt.Errorf("errorUtils hashing password: %v", err)
+		err = fmt.Errorf("error while hashing password: %s", password)
 	}
 
 	return bytes, err

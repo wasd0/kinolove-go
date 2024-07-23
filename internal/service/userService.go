@@ -5,8 +5,8 @@ import (
 	"github.com/google/uuid"
 	"kinolove/internal/entity/.gen/kinolove/public/model"
 	"kinolove/internal/repository"
-	"kinolove/internal/service/dto/user"
-	"kinolove/pkg/utils/clock"
+	"kinolove/internal/service/dto"
+	"kinolove/internal/utils/mapper"
 	"kinolove/pkg/utils/crypt"
 )
 
@@ -18,7 +18,7 @@ func NewUserService(repo repository.UserRepository) *UserServiceImpl {
 	return &UserServiceImpl{userRepo: &repo}
 }
 
-func (u *UserServiceImpl) CreateUser(request user.CreateRequest) (uuid.UUID, error) {
+func (u *UserServiceImpl) CreateUser(request dto.UserCreateRequest) (uuid.UUID, error) {
 	repo := *u.userRepo
 	isExists, err := repo.ExistsByUsername(request.Username)
 
@@ -47,33 +47,53 @@ func (u *UserServiceImpl) CreateUser(request user.CreateRequest) (uuid.UUID, err
 	return usr.ID, nil
 }
 
-func (u *UserServiceImpl) FindByUsername(username string) (user.SingleResponse, error) {
+func (u *UserServiceImpl) FindByUsername(username string) (dto.UserSingleResponse, error) {
 	repo := *u.userRepo
 	usr, err := repo.GetByUsername(username)
 
 	if err != nil {
-		return user.SingleResponse{}, err
+		return dto.UserSingleResponse{}, err
 	}
 
-	return mapUserToSingleResponse(usr), nil
+	return mapper.MapUserToSingleResponse(usr), nil
+}
+
+func (u *UserServiceImpl) Update(id uuid.UUID, request dto.UserUpdateRequest) error {
+	repo := *u.userRepo
+	if request.Username != nil {
+		isExists, err := repo.ExistsByUsername(*request.Username)
+
+		if err != nil {
+			return fmt.Errorf("eror while checking existence of user '%s': %v", *request.Username, err)
+		} else if isExists {
+			return fmt.Errorf("user with username '%s' already exists", *request.Username)
+		}
+	}
+
+	usr, err := repo.GetById(id)
+
+	if err != nil {
+		return getUpdateErr(id, err)
+	}
+
+	err = mapper.MapUpdateRequestToUser(&request, usr)
+	if err != nil {
+		return err
+	}
+
+	updErr := repo.Update(usr)
+
+	if updErr != nil {
+		return getUpdateErr(id, err)
+	}
+
+	return nil
 }
 
 func getCreationErr(format string, args interface{}) (uuid.UUID, error) {
 	return uuid.Nil, fmt.Errorf(format, args)
 }
 
-func mapUserToSingleResponse(usr *model.Users) user.SingleResponse {
-	if usr == nil {
-		return user.SingleResponse{}
-	}
-
-	dateReg := clock.GetUtc(usr.DateReg)
-	datePwdUpd := clock.GetUtc(usr.DatePassUpd)
-
-	return user.SingleResponse{
-		Username:    usr.Username,
-		IsActive:    usr.IsActive,
-		DateReg:     dateReg,
-		DatePassUpd: datePwdUpd,
-	}
+func getUpdateErr(id uuid.UUID, err error) error {
+	return fmt.Errorf("error while getting user '%s': %v\"", id.String(), err)
 }
