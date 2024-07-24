@@ -1,0 +1,8 @@
+env: prod
+log_path: kinolove/log
+
+server:
+  port: 8102
+  host: 
+  timeout: 4s
+  idle_timeout: 60s
