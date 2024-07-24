@@ -2,11 +2,11 @@ package mapper
 
 import (
 	"fmt"
-	"kinolove/internal/entity/.gen/kinolove/public/model"
+	. "kinolove/internal/entity/.gen/kinolove/public/model"
 	"kinolove/internal/service/dto"
 )
 
-func MapMovieToSingleResponse(movie *model.Movies) dto.MovieSingleResponse {
+func MapMovieToSingleResponse(movie *Movies) dto.MovieSingleResponse {
 	if movie == nil {
 		return dto.MovieSingleResponse{}
 	}
@@ -21,7 +21,7 @@ func MapMovieToSingleResponse(movie *model.Movies) dto.MovieSingleResponse {
 	}
 }
 
-func MapMovieToItemData(movie *model.Movies) dto.MovieItemData {
+func MapMovieToItemData(movie *Movies) dto.MovieItemData {
 	if movie == nil {
 		return dto.MovieItemData{}
 	}
@@ -29,7 +29,7 @@ func MapMovieToItemData(movie *model.Movies) dto.MovieItemData {
 	return dto.MovieItemData{Title: movie.Title}
 }
 
-func MapUpdateRequestToMovie(request *dto.MovieUpdateRequest, movie *model.Movies) error {
+func MapUpdateRequestToMovie(request *dto.MovieUpdateRequest, movie *Movies) error {
 	if request == nil {
 		return fmt.Errorf("movie update request is nil")
 	}

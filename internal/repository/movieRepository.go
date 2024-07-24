@@ -2,29 +2,27 @@ package repository
 
 import (
 	"database/sql"
-	"github.com/go-jet/jet/v2/postgres"
+	. "github.com/go-jet/jet/v2/postgres"
 	"kinolove/internal/entity/.gen/kinolove/public/model"
-	"kinolove/internal/entity/.gen/kinolove/public/table"
+	. "kinolove/internal/entity/.gen/kinolove/public/table"
 	"kinolove/pkg/constants"
 	"kinolove/pkg/utils/errorUtils"
 )
 
 type MoviePgRepo struct {
-	db     *sql.DB
-	movies *table.MoviesTable
+	db *sql.DB
 }
 
 func NewMoviesRepository(sqlDb *sql.DB) *MoviePgRepo {
-	return &MoviePgRepo{db: sqlDb, movies: table.Movies}
+	return &MoviePgRepo{db: sqlDb}
 }
 
 func (m *MoviePgRepo) GetById(id int64) (*model.Movies, error) {
 	var movie model.Movies
 
-	stmt := postgres.
-		SELECT(m.movies.AllColumns).
-		FROM(m.movies).
-		WHERE(m.movies.ID.EQ(postgres.Int64(id)))
+	stmt := SELECT(Movies.AllColumns).
+		FROM(Movies).
+		WHERE(Movies.ID.EQ(Int64(id)))
 
 	err := stmt.Query(m.db, &movie)
 
@@ -36,7 +34,7 @@ func (m *MoviePgRepo) GetById(id int64) (*model.Movies, error) {
 }
 
 func (m *MoviePgRepo) Save(entity *model.Movies) error {
-	stmt := m.movies.INSERT(m.movies.MutableColumns).MODEL(entity).RETURNING(m.movies.AllColumns)
+	stmt := Movies.INSERT(Movies.MutableColumns).MODEL(entity).RETURNING(Movies.AllColumns)
 	err := stmt.Query(m.db, entity)
 
 	if err != nil {
@@ -47,9 +45,9 @@ func (m *MoviePgRepo) Save(entity *model.Movies) error {
 }
 
 func (m *MoviePgRepo) Update(entity *model.Movies) error {
-	stmt := m.movies.UPDATE(m.movies.MutableColumns).
+	stmt := Movies.UPDATE(Movies.MutableColumns).
 		MODEL(entity).
-		WHERE(m.movies.ID.EQ(postgres.Int64(entity.ID)))
+		WHERE(Movies.ID.EQ(Int64(entity.ID)))
 
 	_, err := stmt.Exec(m.db)
 
@@ -63,7 +61,7 @@ func (m *MoviePgRepo) Update(entity *model.Movies) error {
 func (m *MoviePgRepo) FindAll() (*[]*model.Movies, error) {
 	movies := make([]*model.Movies, 0)
 
-	stmt := postgres.SELECT(m.movies.AllColumns).FROM(m.movies)
+	stmt := SELECT(Movies.AllColumns).FROM(Movies)
 	err := stmt.Query(m.db, &movies)
 
 	if err != nil {

@@ -1,14 +1,14 @@
 package mapper
 
 import (
-	"kinolove/internal/entity/.gen/kinolove/public/model"
+	. "kinolove/internal/entity/.gen/kinolove/public/model"
 	"kinolove/internal/service/dto"
 	"kinolove/pkg/utils/clock"
 	"kinolove/pkg/utils/crypt"
 	"time"
 )
 
-func MapUserToSingleResponse(usr *model.Users) dto.UserSingleResponse {
+func MapUserToSingleResponse(usr *Users) dto.UserSingleResponse {
 	if usr == nil {
 		return dto.UserSingleResponse{}
 	}
@@ -24,7 +24,7 @@ func MapUserToSingleResponse(usr *model.Users) dto.UserSingleResponse {
 	}
 }
 
-func MapUpdateRequestToUser(request *dto.UserUpdateRequest, user *model.Users) error {
+func MapUpdateRequestToUser(request *dto.UserUpdateRequest, user *Users) error {
 	if request == nil {
 		return nil
 	}
