@@ -9,16 +9,14 @@ import (
 )
 
 type MovieServiceImpl struct {
-	movieRepo *repository.MovieRepository
+	movieRepo repository.MovieRepository
 }
 
 func NewMovieService(repo repository.MovieRepository) *MovieServiceImpl {
-	return &MovieServiceImpl{movieRepo: &repo}
+	return &MovieServiceImpl{movieRepo: repo}
 }
 
 func (m *MovieServiceImpl) CreateMovie(request dto.MovieCreateRequest) (int64, error) {
-	repo := *m.movieRepo
-
 	if len(request.Title) == 0 {
 		return -1, fmt.Errorf("title can not be empty")
 	}
@@ -27,7 +25,7 @@ func (m *MovieServiceImpl) CreateMovie(request dto.MovieCreateRequest) (int64, e
 		Title: request.Title,
 	}
 
-	err := repo.Save(&movie)
+	err := m.movieRepo.Save(&movie)
 	if err != nil {
 		return 0, err
 	}
@@ -36,9 +34,7 @@ func (m *MovieServiceImpl) CreateMovie(request dto.MovieCreateRequest) (int64, e
 }
 
 func (m *MovieServiceImpl) FindById(id int64) (dto.MovieSingleResponse, error) {
-	repo := *m.movieRepo
-
-	movie, err := repo.GetById(id)
+	movie, err := m.movieRepo.GetById(id)
 	if err != nil {
 		return dto.MovieSingleResponse{}, err
 	}
@@ -47,8 +43,7 @@ func (m *MovieServiceImpl) FindById(id int64) (dto.MovieSingleResponse, error) {
 }
 
 func (m *MovieServiceImpl) FindAll() (dto.MovieListResponse, error) {
-	repo := *m.movieRepo
-	movies, err := repo.FindAll()
+	movies, err := m.movieRepo.FindAll()
 
 	if err != nil {
 		return dto.MovieListResponse{}, err
@@ -64,9 +59,7 @@ func (m *MovieServiceImpl) FindAll() (dto.MovieListResponse, error) {
 }
 
 func (m *MovieServiceImpl) Update(id int64, request dto.MovieUpdateRequest) error {
-	repo := *m.movieRepo
-
-	movie, err := repo.GetById(id)
+	movie, err := m.movieRepo.GetById(id)
 
 	if err != nil {
 		return err
@@ -78,5 +71,5 @@ func (m *MovieServiceImpl) Update(id int64, request dto.MovieUpdateRequest) erro
 		return err
 	}
 
-	return repo.Update(movie)
+	return m.movieRepo.Update(movie)
 }

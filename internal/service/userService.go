@@ -11,16 +11,15 @@ import (
 )
 
 type UserServiceImpl struct {
-	userRepo *repository.UserRepository
+	userRepo repository.UserRepository
 }
 
 func NewUserService(repo repository.UserRepository) *UserServiceImpl {
-	return &UserServiceImpl{userRepo: &repo}
+	return &UserServiceImpl{userRepo: repo}
 }
 
 func (u *UserServiceImpl) CreateUser(request dto.UserCreateRequest) (uuid.UUID, error) {
-	repo := *u.userRepo
-	isExists, err := repo.ExistsByUsername(request.Username)
+	isExists, err := u.userRepo.ExistsByUsername(request.Username)
 
 	if err != nil {
 		return uuid.Nil, err
@@ -39,7 +38,7 @@ func (u *UserServiceImpl) CreateUser(request dto.UserCreateRequest) (uuid.UUID, 
 		Password: hash,
 	}
 
-	err = repo.Save(usr)
+	err = u.userRepo.Save(usr)
 	if err != nil {
 		return getCreationErr("errorUtils while saving new user: %v", err)
 	}
@@ -48,8 +47,7 @@ func (u *UserServiceImpl) CreateUser(request dto.UserCreateRequest) (uuid.UUID, 
 }
 
 func (u *UserServiceImpl) FindByUsername(username string) (dto.UserSingleResponse, error) {
-	repo := *u.userRepo
-	usr, err := repo.GetByUsername(username)
+	usr, err := u.userRepo.GetByUsername(username)
 
 	if err != nil {
 		return dto.UserSingleResponse{}, err
@@ -59,9 +57,8 @@ func (u *UserServiceImpl) FindByUsername(username string) (dto.UserSingleRespons
 }
 
 func (u *UserServiceImpl) Update(id uuid.UUID, request dto.UserUpdateRequest) error {
-	repo := *u.userRepo
 	if request.Username != nil {
-		isExists, err := repo.ExistsByUsername(*request.Username)
+		isExists, err := u.userRepo.ExistsByUsername(*request.Username)
 
 		if err != nil {
 			return fmt.Errorf("eror while checking existence of user '%s': %v", *request.Username, err)
@@ -70,7 +67,7 @@ func (u *UserServiceImpl) Update(id uuid.UUID, request dto.UserUpdateRequest) er
 		}
 	}
 
-	usr, err := repo.GetById(id)
+	usr, err := u.userRepo.GetById(id)
 
 	if err != nil {
 		return getUpdateErr(id, err)
@@ -81,7 +78,7 @@ func (u *UserServiceImpl) Update(id uuid.UUID, request dto.UserUpdateRequest) er
 		return err
 	}
 
-	updErr := repo.Update(usr)
+	updErr := u.userRepo.Update(usr)
 
 	if updErr != nil {
 		return getUpdateErr(id, err)
