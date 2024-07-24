@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"kinolove/internal/entity/.gen/kinolove/public/model"
 	"kinolove/internal/repository"
 	"kinolove/internal/service/dto"
@@ -16,9 +17,9 @@ func NewMovieService(repo repository.MovieRepository) *MovieServiceImpl {
 	return &MovieServiceImpl{movieRepo: repo}
 }
 
-func (m *MovieServiceImpl) CreateMovie(request dto.MovieCreateRequest) (int64, error) {
+func (m *MovieServiceImpl) CreateMovie(request dto.MovieCreateRequest) (int64, *ServErr) {
 	if len(request.Title) == 0 {
-		return -1, fmt.Errorf("title can not be empty")
+		return -1, BadRequest(errors.New("Wring title"), "movie title can not be empty")
 	}
 
 	movie := model.Movies{
@@ -27,26 +28,27 @@ func (m *MovieServiceImpl) CreateMovie(request dto.MovieCreateRequest) (int64, e
 
 	err := m.movieRepo.Save(&movie)
 	if err != nil {
-		return 0, err
+		return 0, InternalError(err)
 	}
 
 	return movie.ID, nil
 }
 
-func (m *MovieServiceImpl) FindById(id int64) (dto.MovieSingleResponse, error) {
+func (m *MovieServiceImpl) FindById(id int64) (dto.MovieSingleResponse, *ServErr) {
 	movie, err := m.movieRepo.GetById(id)
 	if err != nil {
-		return dto.MovieSingleResponse{}, err
+		msg := fmt.Sprintf("Movie with id %d not found", id)
+		return dto.MovieSingleResponse{}, BadRequest(err, msg)
 	}
 
 	return mapper.MapMovieToSingleResponse(movie), nil
 }
 
-func (m *MovieServiceImpl) FindAll() (dto.MovieListResponse, error) {
+func (m *MovieServiceImpl) FindAll() (dto.MovieListResponse, *ServErr) {
 	movies, err := m.movieRepo.FindAll()
 
 	if err != nil {
-		return dto.MovieListResponse{}, err
+		return dto.MovieListResponse{}, InternalError(err)
 	}
 
 	data := make([]dto.MovieItemData, 0, len(*movies))
@@ -55,21 +57,26 @@ func (m *MovieServiceImpl) FindAll() (dto.MovieListResponse, error) {
 		data = append(data, mapper.MapMovieToItemData(movie))
 	}
 
-	return dto.MovieListResponse{Data: data}, nil
+	return dto.MovieListResponse{Movies: data}, nil
 }
 
-func (m *MovieServiceImpl) Update(id int64, request dto.MovieUpdateRequest) error {
+func (m *MovieServiceImpl) Update(id int64, request dto.MovieUpdateRequest) *ServErr {
 	movie, err := m.movieRepo.GetById(id)
 
 	if err != nil {
-		return err
+		msg := fmt.Sprintf("Movie with id %d not found", id)
+		return BadRequest(err, msg)
 	}
 
 	err = mapper.MapUpdateRequestToMovie(&request, movie)
 
 	if err != nil {
-		return err
+		return InternalError(err)
 	}
 
-	return m.movieRepo.Update(movie)
+	if err = m.movieRepo.Update(movie); err != nil {
+		return InternalError(err)
+	}
+
+	return nil
 }

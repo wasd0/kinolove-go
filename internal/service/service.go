@@ -6,14 +6,14 @@ import (
 )
 
 type UserService interface {
-	CreateUser(request dto.UserCreateRequest) (uuid.UUID, error)
-	FindByUsername(username string) (dto.UserSingleResponse, error)
-	Update(id uuid.UUID, request dto.UserUpdateRequest) error
+	CreateUser(request dto.UserCreateRequest) (uuid.UUID, *ServErr)
+	FindByUsername(username string) (dto.UserSingleResponse, *ServErr)
+	Update(id uuid.UUID, request dto.UserUpdateRequest) *ServErr
 }
 
 type MovieService interface {
-	CreateMovie(request dto.MovieCreateRequest) (int64, error)
-	FindById(id int64) (dto.MovieSingleResponse, error)
-	FindAll() (dto.MovieListResponse, error)
-	Update(id int64, request dto.MovieUpdateRequest) error
+	CreateMovie(request dto.MovieCreateRequest) (int64, *ServErr)
+	FindById(id int64) (dto.MovieSingleResponse, *ServErr)
+	FindAll() (dto.MovieListResponse, *ServErr)
+	Update(id int64, request dto.MovieUpdateRequest) *ServErr
 }

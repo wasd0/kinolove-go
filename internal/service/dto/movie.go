@@ -18,7 +18,7 @@ type MovieItemData struct {
 }
 
 type MovieListResponse struct {
-	Data []MovieItemData `json:"data"`
+	Movies []MovieItemData `json:"movies"`
 }
 
 type MovieUpdateRequest struct {
