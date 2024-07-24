@@ -8,11 +8,11 @@ build:
 test:
 	@go test -v ./...
 	
-run: build
-	${BIN_PATH}
+run:
+	@chmod +x scripts/run.sh && scripts/run.sh ${BIN_PATH}
 
 clean:
-	@go clean 
-	@if [ -e ${BIN_PATH} ]; then \
-	    rm ${BIN_PATH}; \
-	fi
+	@chmod +x scripts/clean.sh && scripts/clean.sh ${BIN_PATH}
+
+migrate:
+	@chmod +x scripts/migrations_run.sh && scripts/migrations_run.sh
