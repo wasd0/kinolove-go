@@ -32,7 +32,8 @@ func runServer(ctx context.Context) {
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
 	log, loggerCallback := zerolog.MustSetUp(cfg)
 	pg, storageCallback := storage.MustOpenPostgres(log)
-	mux := setUpRouter(cfg)
+	httpLog := logger.LogFormatterImpl{Logger: log}
+	mux := setUpRouter(cfg, &httpLog)
 	closer := &app.Closer{}
 
 	closer.Add(loggerCallback)
@@ -80,12 +81,9 @@ func runServer(ctx context.Context) {
 	}
 }
 
-func setUpRouter(cfg *config.Config) *chi.Mux {
+func setUpRouter(cfg *config.Config, log *logger.LogFormatterImpl) *chi.Mux {
 	router := chi.NewRouter()
-	router.Use(middleware.Logger)
-	router.Use(middleware.RealIP)
-	router.Use(middleware.Recoverer)
-	router.Use(middleware.RequestID)
+	router.Use(middleware.RequestLogger(log))
 	router.Use(middleware.Timeout(cfg.Server.IdleTimeout))
 	return router
 }
