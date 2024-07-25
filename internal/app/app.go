@@ -57,6 +57,7 @@ func runServer(ctx context.Context) {
 	mux.Route(userApi.Register())
 	mux.Route(movieApi.Register())
 	mux.NotFound(defaultApi.NotFound)
+	mux.MethodNotAllowed(defaultApi.MethodNotAllowed)
 
 	server := &http.Server{Addr: addr, Handler: mux}
 	closer.Add(server.Shutdown)

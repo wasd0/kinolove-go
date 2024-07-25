@@ -37,3 +37,11 @@ func NotFound(msg string) *ServErr {
 		Time: time.Now().UTC(),
 	}
 }
+
+func MethodNotAllowed(msg string) *ServErr {
+	return &ServErr{
+		Code: 405,
+		Msg:  msg,
+		Time: time.Now().UTC(),
+	}
+}
