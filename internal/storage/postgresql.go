@@ -1,10 +1,12 @@
 package storage
 
 import (
+	"context"
 	"database/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"kinolove/pkg/constants"
 	"kinolove/pkg/logger"
+	"kinolove/pkg/utils/app"
 	"os"
 )
 
@@ -14,7 +16,7 @@ type PgStorage struct {
 	Db *sql.DB
 }
 
-func MustOpenPostgres(log logger.Common) (*PgStorage, func()) {
+func MustOpenPostgres(log logger.Common) (*PgStorage, app.Callback) {
 	dbUrl := os.Getenv(constants.EnvDbUrl)
 
 	db, err := sql.Open(DbDriver, dbUrl)
@@ -23,16 +25,8 @@ func MustOpenPostgres(log logger.Common) (*PgStorage, func()) {
 		log.Fatalf(err, "%s Failed to open connection to database", constants.OpenConnect)
 	}
 
-	return &PgStorage{Db: db}, func() {
-		closeDb(log, db)
+	return &PgStorage{Db: db}, func(ctx context.Context) error {
+		log.Info("Database closing...")
+		return db.Close()
 	}
-}
-
-func closeDb(log logger.Common, db *sql.DB) {
-	err := db.Close()
-
-	if err != nil {
-		log.Fatalf(err, "%s failed to close database", constants.CloseConnect)
-	}
-
 }
