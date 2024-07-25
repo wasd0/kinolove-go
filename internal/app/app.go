@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -11,15 +13,30 @@ import (
 	"kinolove/pkg/config"
 	"kinolove/pkg/logger"
 	"kinolove/pkg/logger/zerolog"
+	"kinolove/pkg/utils/app"
 	"net/http"
+	"os/signal"
+	"syscall"
 )
 
-func Startup() func() {
+func Startup() {
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT,
+		syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT)
 
+	defer stop()
+	runServer(ctx)
+}
+
+func runServer(ctx context.Context) {
 	cfg := config.MustRead()
+	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
 	log, loggerCallback := zerolog.MustSetUp(cfg)
 	pg, storageCallback := storage.MustOpenPostgres(log)
 	mux := setUpRouter(cfg)
+	closer := &app.Closer{}
+
+	closer.Add(loggerCallback)
+	closer.Add(storageCallback)
 
 	var (
 		userRepo  repository.UserRepository  = repository.NewUserRepository(pg.Db)
@@ -41,22 +58,24 @@ func Startup() func() {
 	mux.Route(movieApi.Register())
 	mux.NotFound(defaultApi.NotFound)
 
+	server := &http.Server{Addr: addr, Handler: mux}
+	closer.Add(server.Shutdown)
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal(err, "http server start failed")
+		}
+	}()
+
 	printStartMessage(log, cfg)
 
-	//todo implement graceful shutdown
+	<-ctx.Done()
 
-	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.Server.Timeout)
+	defer cancel()
 
-	err := http.ListenAndServe(addr, mux)
-
-	if err != nil {
-		log.Fatal(err, "error while starting server")
-	}
-
-	return func() {
-		log.Info("Shutting down")
-		loggerCallback()
-		storageCallback()
+	if err := closer.Close(shutdownCtx, log); err != nil {
+		log.Fatal(err, "Server close failed")
 	}
 }
 

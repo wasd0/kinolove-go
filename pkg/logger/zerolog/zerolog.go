@@ -1,9 +1,11 @@
 package zerolog
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"kinolove/pkg/config"
+	"kinolove/pkg/utils/app"
 	"kinolove/pkg/utils/osUtils"
 	"os"
 	"time"
@@ -43,7 +45,7 @@ func (logger *Zerolog) Fatalf(err error, format string, args ...interface{}) {
 }
 
 // MustSetUp setups zerolog. Returns zerolog object and callback function
-func MustSetUp(cfg *config.Config) (*Zerolog, func()) {
+func MustSetUp(cfg *config.Config) (*Zerolog, app.Callback) {
 	var (
 		level zerolog.Level
 		file  *os.File
@@ -66,11 +68,14 @@ func MustSetUp(cfg *config.Config) (*Zerolog, func()) {
 	zeroLogger := zerolog.New(output).With().CallerWithSkipFrameCount(3).Timestamp().Logger()
 	logger := &Zerolog{log: &zeroLogger}
 
-	return logger, func() {
+	return logger, func(ctx context.Context) error {
+		logger.Info("Log file closing...")
+
 		if file != nil {
-			err := osUtils.CloseFile(file)
-			logger.Fatal(err, "Error while closing file")
+			return osUtils.CloseFile(file)
 		}
+
+		return nil
 	}
 }
 
