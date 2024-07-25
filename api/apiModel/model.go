@@ -30,7 +30,7 @@ type ErrResponse struct {
 	Message string    `json:"message"`
 	ErrCode int       `json:"code"`
 	Time    time.Time `json:"time"`
-	ErrDesc string    `json:"description"`
+	ErrDesc string    `json:"description,omitempty"`
 }
 
 func (e *ErrResponse) Render(_ http.ResponseWriter, r *http.Request) error {
@@ -38,11 +38,15 @@ func (e *ErrResponse) Render(_ http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 func NewErrRenderer(servErr *service.ServErr) render.Renderer {
+	desc := ""
+	if servErr.Err != nil {
+		desc = servErr.Err.Error()
+	}
 	return &ErrResponse{
 		Err:     servErr.Err,
 		ErrCode: servErr.Code,
 		Message: servErr.Msg,
 		Time:    servErr.Time,
-		ErrDesc: servErr.Err.Error(),
+		ErrDesc: desc,
 	}
 }
