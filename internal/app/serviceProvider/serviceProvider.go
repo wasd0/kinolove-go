@@ -1,20 +1,20 @@
 package serviceProvider
 
 import (
-	repoProvider2 "kinolove/internal/app/repoProvider"
+	"kinolove/internal/app/repoProvider"
 	"kinolove/internal/service"
 )
 
 type ServiceProvider struct {
-	repoProvider *repoProvider2.RepoProvider
+	provider *repoProvider.RepoProvider
 
 	user  service.UserService
 	movie service.MovieService
 	login service.LoginService
 }
 
-func InitServices(provider *repoProvider2.RepoProvider) *ServiceProvider {
-	return &ServiceProvider{repoProvider: provider}
+func InitServices(provider *repoProvider.RepoProvider) *ServiceProvider {
+	return &ServiceProvider{provider: provider}
 }
 
 func (sp *ServiceProvider) UserService() service.UserService {
@@ -22,7 +22,7 @@ func (sp *ServiceProvider) UserService() service.UserService {
 		return sp.user
 	}
 
-	user := service.NewUserService(sp.repoProvider.UserRepo())
+	user := service.NewUserService(sp.provider.UserRepo())
 	sp.user = user
 	return sp.user
 }
@@ -32,7 +32,7 @@ func (sp *ServiceProvider) MovieService() service.MovieService {
 		return sp.movie
 	}
 
-	movie := service.NewMovieService(sp.repoProvider.MovieRepo())
+	movie := service.NewMovieService(sp.provider.MovieRepo())
 	sp.movie = movie
 	return sp.movie
 }
