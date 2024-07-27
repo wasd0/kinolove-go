@@ -3,6 +3,7 @@ package apiProvider
 import (
 	"kinolove/api"
 	"kinolove/internal/app/serviceProvider"
+	"kinolove/internal/middleware"
 	"kinolove/pkg/logger"
 )
 
@@ -14,10 +15,13 @@ type ApiProvider struct {
 	user       *api.UserApi
 	movie      *api.MovieApi
 	login      *api.LoginApi
+
+	authMid *middleware.AuthMiddleware
 }
 
 func InitApi(serviceProvider *serviceProvider.ServiceProvider, log logger.Common) *ApiProvider {
-	return &ApiProvider{serviceProvider: serviceProvider, log: log}
+	auth := middleware.NewAuthMiddleware(serviceProvider.AuthService(), log, api.RenderError)
+	return &ApiProvider{serviceProvider: serviceProvider, log: log, authMid: auth}
 }
 
 func (ap *ApiProvider) DefaultApi() *api.DefaultApi {
@@ -35,7 +39,7 @@ func (ap *ApiProvider) UserApi() *api.UserApi {
 		return ap.user
 	}
 
-	dApi := api.NewUserApi(ap.log, ap.serviceProvider.UserService())
+	dApi := api.NewUserApi(ap.log, ap.serviceProvider.UserService(), ap.authMid)
 	ap.user = dApi
 	return ap.user
 }

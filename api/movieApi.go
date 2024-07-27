@@ -37,7 +37,7 @@ func (u *MovieApi) findAll(w http.ResponseWriter, r *http.Request) {
 	response := movie.ResMovieFindAll{Data: movies}
 
 	if err != nil {
-		renderError(w, r, err, u.log)
+		RenderError(w, r, err, u.log)
 		return
 	}
 
@@ -51,16 +51,16 @@ func (u *MovieApi) create(w http.ResponseWriter, r *http.Request) {
 	request := movie.ReqMovieCreate{}
 
 	if err := render.Bind(r, &request); err != nil {
-		renderError(w, r, service.BadRequest(err, "Failed get request body"), u.log)
+		RenderError(w, r, service.BadRequest(err, "Failed get request body"), u.log)
 		return
 	}
 
 	if id, err := u.movieService.CreateMovie(request.MovieCreateRequest); err != nil {
-		renderError(w, r, err, u.log)
+		RenderError(w, r, err, u.log)
 	} else {
 		response := apiModel.RestResponse[int64]{Data: &id}
 		if renderErr := render.Render(w, r, &response); renderErr != nil {
-			renderError(w, r, service.InternalError(renderErr), u.log)
+			RenderError(w, r, service.InternalError(renderErr), u.log)
 			return
 		}
 	}
@@ -71,16 +71,16 @@ func (u *MovieApi) findById(w http.ResponseWriter, r *http.Request) {
 	id, parseErr := strconv.ParseInt(idStr, 10, 64)
 
 	if parseErr != nil {
-		renderError(w, r, service.InternalError(parseErr), u.log)
+		RenderError(w, r, service.InternalError(parseErr), u.log)
 		return
 	}
 
 	if m, err := u.movieService.FindById(id); err != nil {
-		renderError(w, r, err, u.log)
+		RenderError(w, r, err, u.log)
 	} else {
 		response := apiModel.RestResponse[dto.MovieSingleResponse]{Data: &m}
 		if renderErr := render.Render(w, r, &response); renderErr != nil {
-			renderError(w, r, err, u.log)
+			RenderError(w, r, err, u.log)
 		}
 	}
 }
@@ -89,7 +89,7 @@ func (u *MovieApi) update(w http.ResponseWriter, r *http.Request) {
 	req := movie.ReqMovieUpdate{}
 
 	if err := render.Bind(r, &req); err != nil {
-		renderError(w, r, service.BadRequest(err, "Failed get request body"), u.log)
+		RenderError(w, r, service.BadRequest(err, "Failed get request body"), u.log)
 		return
 	}
 
@@ -98,13 +98,13 @@ func (u *MovieApi) update(w http.ResponseWriter, r *http.Request) {
 	id, parseErr := strconv.ParseInt(idStr, 10, 64)
 
 	if parseErr != nil {
-		renderError(w, r, service.InternalError(parseErr), u.log)
+		RenderError(w, r, service.InternalError(parseErr), u.log)
 		return
 	}
 
 	err := u.movieService.Update(id, req.MovieUpdateRequest)
 
 	if err != nil {
-		renderError(w, r, err, u.log)
+		RenderError(w, r, err, u.log)
 	}
 }

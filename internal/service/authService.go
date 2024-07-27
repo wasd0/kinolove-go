@@ -3,23 +3,24 @@ package service
 import (
 	"github.com/go-chi/jwtauth"
 	"github.com/google/uuid"
+	"github.com/lestrrat-go/jwx/jwt"
 	"github.com/pkg/errors"
 	. "kinolove/internal/entity/.gen/kinolove/public/model"
 	"kinolove/internal/service/dto"
 	"kinolove/internal/utils/mapper"
 	"kinolove/pkg/constants"
 	"kinolove/pkg/utils/crypt"
-	"kinolove/pkg/utils/jwt"
+	"kinolove/pkg/utils/jwtUtils"
 	"net/http"
 	"os"
 	"time"
 )
 
 type AuthServiceImpl struct {
-	jwtTok *jwt.Auth
+	jwtTok *jwtUtils.Auth
 }
 
-func NewAuthService(jwtTok *jwt.Auth) *AuthServiceImpl {
+func NewAuthService(jwtTok *jwtUtils.Auth) *AuthServiceImpl {
 	return &AuthServiceImpl{jwtTok: jwtTok}
 }
 
@@ -38,7 +39,7 @@ func (a *AuthServiceImpl) IsPasswordsMatches(password string, hash []byte) bool 
 }
 
 func (a *AuthServiceImpl) GetJwtToken(usrId uuid.UUID, perms *dto.AllUserPermission) (string, *ServErr) {
-	tok := &jwt.Token{}
+	tok := &jwtUtils.Token{}
 
 	exp := os.Getenv(constants.EnvExpIn)
 	expIn, err := time.ParseDuration(exp)
@@ -65,11 +66,13 @@ func (a *AuthServiceImpl) GetJwtToken(usrId uuid.UUID, perms *dto.AllUserPermiss
 }
 
 func (a *AuthServiceImpl) VerifyJwt(req *http.Request) *ServErr {
-	token := jwtauth.TokenFromCookie(req)
-
-	err := a.jwtTok.Verify(token)
+	token, _, err := jwtauth.FromContext(req.Context())
 
 	if err != nil {
+		return Unauthorized(err)
+	}
+
+	if token == nil || jwt.Validate(token) != nil {
 		return Unauthorized(err)
 	}
 

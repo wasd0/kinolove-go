@@ -1,4 +1,4 @@
-package jwt
+package jwtUtils
 
 import (
 	"encoding/json"
@@ -34,7 +34,7 @@ func (a *Auth) Encode(token *Token) (string, error) {
 
 	_, tokString, err := a.jwt.Encode(claims)
 	if err != nil {
-		return "", fmt.Errorf("encode jwt error: %v", err)
+		return "", fmt.Errorf("encode jwtUtils error: %v", err)
 	}
 
 	return tokString, nil

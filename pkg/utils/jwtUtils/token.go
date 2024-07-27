@@ -1,4 +1,4 @@
-package jwt
+package jwtUtils
 
 import (
 	"github.com/google/uuid"

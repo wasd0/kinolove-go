@@ -34,7 +34,7 @@ func (l *LoginApi) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := l.loginService.Login(w, loginRequest.LoginRequest); err != nil {
-		renderError(w, r, err, l.log)
+		RenderError(w, r, err, l.log)
 		return
 	}
 }
@@ -43,7 +43,7 @@ func (l *LoginApi) Logout(w http.ResponseWriter, r *http.Request) {
 	err := l.loginService.Logout(w, r)
 
 	if err != nil {
-		renderError(w, r, err, l.log)
+		RenderError(w, r, err, l.log)
 		return
 	}
 }

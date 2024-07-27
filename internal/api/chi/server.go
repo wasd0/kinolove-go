@@ -10,7 +10,7 @@ import (
 	"kinolove/pkg/config"
 	"kinolove/pkg/logger"
 	"kinolove/pkg/utils/app"
-	"kinolove/pkg/utils/jwt"
+	"kinolove/pkg/utils/jwtUtils"
 	"net/http"
 )
 
@@ -19,7 +19,7 @@ type Server struct {
 	server *http.Server
 }
 
-func SetupServer(cfg *config.Config, log logger.Common, provider *apiProvider.ApiProvider, formatter *logger.LogFormatterImpl, jwt *jwt.Auth) *Server {
+func SetupServer(cfg *config.Config, log logger.Common, provider *apiProvider.ApiProvider, formatter *logger.LogFormatterImpl, jwt *jwtUtils.Auth) *Server {
 	mux := chi.NewRouter()
 	auth := jwt
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
@@ -44,7 +44,7 @@ func (s *Server) MustRun() app.Callback {
 	return s.server.Shutdown
 }
 
-func setUpMiddlewares(cfg *config.Config, mux *chi.Mux, formatter *logger.LogFormatterImpl, auth *jwt.Auth) {
+func setUpMiddlewares(cfg *config.Config, mux *chi.Mux, formatter *logger.LogFormatterImpl, auth *jwtUtils.Auth) {
 	mux.Use(middleware.RequestLogger(formatter))
 	mux.Use(middleware.Timeout(cfg.Server.IdleTimeout))
 	mux.Use(jwtauth.Verifier(auth.GetJwt()))
