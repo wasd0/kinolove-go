@@ -39,7 +39,7 @@ func (ap *ApiProvider) UserApi() *api.UserApi {
 		return ap.user
 	}
 
-	dApi := api.NewUserApi(ap.log, ap.serviceProvider.UserService(), ap.authMid)
+	dApi := api.NewUserApi(ap.log, ap.serviceProvider.UserService(), ap.authMid, ap.serviceProvider.AuthService())
 	ap.user = dApi
 	return ap.user
 }
@@ -49,7 +49,7 @@ func (ap *ApiProvider) MovieApi() *api.MovieApi {
 		return ap.movie
 	}
 
-	dApi := api.NewMovieApi(ap.log, ap.serviceProvider.MovieService())
+	dApi := api.NewMovieApi(ap.log, ap.serviceProvider.MovieService(), ap.authMid)
 	ap.movie = dApi
 	return ap.movie
 }
@@ -59,7 +59,7 @@ func (ap *ApiProvider) LoginApi() *api.LoginApi {
 		return ap.login
 	}
 
-	dApi := api.NewLoginApi(ap.log, ap.serviceProvider.LoginService())
+	dApi := api.NewLoginApi(ap.log, ap.serviceProvider.LoginService(), ap.authMid)
 	ap.login = dApi
 	return ap.login
 }

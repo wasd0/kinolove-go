@@ -1,10 +1,12 @@
 package api
 
 import (
+	"github.com/go-chi/jwtauth"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"kinolove/api/apiModel"
 	"kinolove/api/apiModel/user"
+	"kinolove/internal/consts/perms"
 	"kinolove/internal/middleware"
 	"kinolove/internal/service"
 	"kinolove/internal/service/dto"
@@ -19,10 +21,12 @@ type UserApi struct {
 	userService service.UserService
 	log         logger.Common
 	auth        *middleware.AuthMiddleware
+	authService service.AuthService
 }
 
-func NewUserApi(log logger.Common, userService service.UserService, auth *middleware.AuthMiddleware) *UserApi {
-	return &UserApi{log: log, userService: userService, auth: auth}
+func NewUserApi(log logger.Common, userService service.UserService,
+	auth *middleware.AuthMiddleware, authService service.AuthService) *UserApi {
+	return &UserApi{log: log, userService: userService, auth: auth, authService: authService}
 }
 
 func (u *UserApi) Register() (string, func(router chi.Router)) {
@@ -30,10 +34,9 @@ func (u *UserApi) Register() (string, func(router chi.Router)) {
 }
 
 func (u *UserApi) Handle(router chi.Router) {
-	router.Use(u.auth.Authenticator)
 	router.Post("/", u.createUser)
 	router.Get("/{username}", u.findByUsername)
-	router.Put("/{id}", u.update)
+	router.With(u.auth.HasPermission(perms.User, perms.Edit)).Put("/{id}", u.update)
 }
 
 func (u *UserApi) createUser(w http.ResponseWriter, r *http.Request) {
@@ -82,6 +85,14 @@ func (u *UserApi) update(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		RenderError(w, r, service.InternalError(err), u.log)
+		return
+	}
+
+	if jwt, _, err := jwtauth.FromContext(r.Context()); err != nil {
+		RenderError(w, r, service.Unauthorized(err), u.log)
+		return
+	} else if u.authService.IsAuthenticated(&jwt, id) != nil {
+		RenderError(w, r, service.Forbidden(err), u.log)
 		return
 	}
 

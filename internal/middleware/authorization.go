@@ -23,7 +23,7 @@ func NewAuthMiddleware(authService service.AuthService, log logger.Common,
 
 func (a *AuthMiddleware) Authenticator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err := a.authService.VerifyJwt(r)
+		_, err := a.authService.VerifyJwt(r)
 
 		if err != nil {
 			a.renderer(w, r, err, a.log)
@@ -32,5 +32,24 @@ func (a *AuthMiddleware) Authenticator(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
 
+func (a *AuthMiddleware) HasPermission(permId int64, lvl int16) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			tok, err := a.authService.VerifyJwt(r)
+
+			if err != nil {
+				a.renderer(w, r, err, a.log)
+				return
+			}
+
+			if err := a.authService.HasPermission(tok, permId, lvl); err != nil {
+				a.renderer(w, r, err, a.log)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }

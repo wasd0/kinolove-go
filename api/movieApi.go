@@ -5,6 +5,8 @@ import (
 	"github.com/go-chi/render"
 	"kinolove/api/apiModel"
 	"kinolove/api/apiModel/movie"
+	"kinolove/internal/consts/perms"
+	"kinolove/internal/middleware"
 	"kinolove/internal/service"
 	"kinolove/internal/service/dto"
 	"kinolove/pkg/logger"
@@ -15,10 +17,11 @@ import (
 type MovieApi struct {
 	movieService service.MovieService
 	log          logger.Common
+	auth         *middleware.AuthMiddleware
 }
 
-func NewMovieApi(log logger.Common, movieService service.MovieService) *MovieApi {
-	return &MovieApi{log: log, movieService: movieService}
+func NewMovieApi(log logger.Common, movieService service.MovieService, auth *middleware.AuthMiddleware) *MovieApi {
+	return &MovieApi{log: log, movieService: movieService, auth: auth}
 }
 
 func (u *MovieApi) Register() (string, func(router chi.Router)) {
@@ -27,9 +30,9 @@ func (u *MovieApi) Register() (string, func(router chi.Router)) {
 
 func (u *MovieApi) Handle(router chi.Router) {
 	router.Get("/", u.findAll)
-	router.Post("/", u.create)
+	router.With(u.auth.HasPermission(perms.Movie, perms.Create)).Post("/", u.create)
 	router.Get("/{id}", u.findById)
-	router.Put("/{id}", u.update)
+	router.With(u.auth.HasPermission(perms.Movie, perms.Edit)).Put("/{id}", u.update)
 }
 
 func (u *MovieApi) findAll(w http.ResponseWriter, r *http.Request) {

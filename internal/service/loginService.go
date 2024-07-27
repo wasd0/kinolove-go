@@ -49,13 +49,7 @@ func (l *LoginServiceImpl) Login(w http.ResponseWriter, request dto.LoginRequest
 	return nil
 }
 
-func (l *LoginServiceImpl) Logout(w http.ResponseWriter, req *http.Request) *ServErr {
-	err := l.authService.VerifyJwt(req)
-
-	if err != nil {
-		return err
-	}
-
+func (l *LoginServiceImpl) Logout(w http.ResponseWriter) *ServErr {
 	w.Header().Set("Set-Cookie", "jwt=")
 
 	return nil

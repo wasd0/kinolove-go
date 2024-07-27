@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/jwt"
 	"github.com/pkg/errors"
+	"kinolove/internal/consts/perms"
 	. "kinolove/internal/entity/.gen/kinolove/public/model"
 	"kinolove/internal/service/dto"
 	"kinolove/internal/utils/mapper"
@@ -13,6 +14,7 @@ import (
 	"kinolove/pkg/utils/jwtUtils"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -48,10 +50,9 @@ func (a *AuthServiceImpl) GetJwtToken(usrId uuid.UUID, perms *dto.AllUserPermiss
 		return "", InternalError(err)
 	}
 
-	tok.Sub = usrId
+	userPerms, rolePerms := mapper.PermissionToMaps(perms)
 
-	userPerms, rolePerms := mapper.PermissionToJwt(perms)
-
+	tok.Sub = usrId.String()
 	tok.UserPerms = *userPerms
 	tok.RolePerms = *rolePerms
 	tok.ExpIn = expIn
@@ -65,15 +66,65 @@ func (a *AuthServiceImpl) GetJwtToken(usrId uuid.UUID, perms *dto.AllUserPermiss
 	return tokenStr, nil
 }
 
-func (a *AuthServiceImpl) VerifyJwt(req *http.Request) *ServErr {
+func (a *AuthServiceImpl) VerifyJwt(req *http.Request) (*jwt.Token, *ServErr) {
 	token, _, err := jwtauth.FromContext(req.Context())
 
 	if err != nil {
-		return Unauthorized(err)
+		return nil, Unauthorized(err)
 	}
 
 	if token == nil || jwt.Validate(token) != nil {
+		return nil, Unauthorized(err)
+	}
+
+	return &token, nil
+}
+
+func (a *AuthServiceImpl) HasPermission(tok *jwt.Token, permId int64, permLevel int16) *ServErr {
+	if tok == nil {
+		return Forbidden(errors.New("Token is nil"))
+	}
+
+	var usrPermLvl interface{} = nil
+
+	permStrId := strconv.Itoa(int(permId))
+
+	if usrPerms, isOK := (*tok).Get(perms.UserPerms); isOK {
+		permsMap := usrPerms.(map[string]interface{})
+		if permsMap != nil {
+			if perm, hasPerm := permsMap[permStrId]; hasPerm {
+				usrPermLvl = perm
+			}
+		}
+	}
+
+	if rolePerms, isOK := (*tok).Get(perms.RolePerms); isOK {
+		permsMap := rolePerms.(map[string]interface{})
+		if permsMap != nil {
+			if perm, hasPerm := permsMap[permStrId]; hasPerm {
+				usrPermLvl = perm
+			}
+		}
+	}
+
+	if val, isOk := usrPermLvl.(float64); !isOk || int16(val) < permLevel {
+		return Forbidden(errors.New("Forbidden"))
+	}
+
+	return nil
+}
+
+func (a *AuthServiceImpl) IsAuthenticated(tok *jwt.Token, usrId uuid.UUID) *ServErr {
+	if usrId == uuid.Nil || len((*tok).Subject()) == 0 {
+		return Unauthorized(errors.New("Invalid user"))
+	}
+
+	if err := uuid.Validate((*tok).Subject()); err != nil {
 		return Unauthorized(err)
+	}
+
+	if usrId.String() != (*tok).Subject() {
+		return Unauthorized(errors.New("Invalid user"))
 	}
 
 	return nil
