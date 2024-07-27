@@ -15,8 +15,7 @@ import (
 type UsersPermissions struct {
 	UserID       uuid.UUID `sql:"primary_key"`
 	PermissionID int64     `sql:"primary_key"`
-	TargetLevel  int16
-	GlobalLevel  int16
+	Level        int16
 	Cause        *string
 	DateExpire   *time.Time
 }
