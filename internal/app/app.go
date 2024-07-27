@@ -2,19 +2,16 @@ package app
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"kinolove/api"
-	"kinolove/internal/repository"
-	"kinolove/internal/service"
+	"kinolove/internal/api/chi"
+	"kinolove/internal/app/apiProvider"
+	"kinolove/internal/app/repoProvider"
+	"kinolove/internal/app/serviceProvider"
 	"kinolove/internal/storage"
 	"kinolove/pkg/config"
 	"kinolove/pkg/logger"
 	"kinolove/pkg/logger/zerolog"
 	"kinolove/pkg/utils/app"
-	"net/http"
+	"kinolove/pkg/utils/jwt"
 	"os/signal"
 	"syscall"
 )
@@ -29,44 +26,24 @@ func Startup() {
 
 func runServer(ctx context.Context) {
 	cfg := config.MustRead()
-	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
+	closer := &app.Closer{}
 	log, loggerCallback := zerolog.MustSetUp(cfg)
 	pg, storageCallback := storage.MustOpenPostgres(log)
-	mux := setUpRouter(cfg)
-	closer := &app.Closer{}
+	logFormatter := logger.LogFormatterImpl{Logger: log}
+	auth := jwt.NewJwtAuth()
+
+	var (
+		repos    = repoProvider.InitRepos(pg.Db, log)
+		services = serviceProvider.InitServices(repos, auth)
+		apis     = apiProvider.InitApi(services, log)
+	)
+
+	api := chi.SetupServer(cfg, log, apis, &logFormatter, auth)
+	callback := api.MustRun()
 
 	closer.Add(loggerCallback)
 	closer.Add(storageCallback)
-
-	var (
-		userRepo  repository.UserRepository  = repository.NewUserRepository(pg.Db)
-		movieRepo repository.MovieRepository = repository.NewMoviesRepository(pg.Db)
-	)
-
-	var (
-		userService  service.UserService  = service.NewUserService(userRepo)
-		movieService service.MovieService = service.NewMovieService(movieRepo)
-	)
-
-	var (
-		defaultApi            = api.NewDefaultApi(log)
-		userApi    api.ChiApi = api.NewUserApi(log, userService)
-		movieApi   api.ChiApi = api.NewMovieApi(log, movieService)
-	)
-
-	mux.Route(userApi.Register())
-	mux.Route(movieApi.Register())
-	mux.NotFound(defaultApi.NotFound)
-	mux.MethodNotAllowed(defaultApi.MethodNotAllowed)
-
-	server := &http.Server{Addr: addr, Handler: mux}
-	closer.Add(server.Shutdown)
-
-	go func() {
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatal(err, "http server start failed")
-		}
-	}()
+	closer.Add(callback)
 
 	printStartMessage(log, cfg)
 
@@ -78,16 +55,6 @@ func runServer(ctx context.Context) {
 	if err := closer.Close(shutdownCtx, log); err != nil {
 		log.Fatal(err, "Server close failed")
 	}
-}
-
-func setUpRouter(cfg *config.Config) *chi.Mux {
-	router := chi.NewRouter()
-	router.Use(middleware.Logger)
-	router.Use(middleware.RealIP)
-	router.Use(middleware.Recoverer)
-	router.Use(middleware.RequestID)
-	router.Use(middleware.Timeout(cfg.Server.IdleTimeout))
-	return router
 }
 
 func printStartMessage(log logger.Common, cfg *config.Config) {

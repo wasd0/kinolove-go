@@ -21,3 +21,12 @@ type UserRepository interface {
 type MovieRepository interface {
 	Repository[model.Movies, int64]
 }
+
+type RoleRepository interface {
+	GetUserRolesIds(usrId uuid.UUID) (*[]int64, error)
+}
+
+type PermissionRepository interface {
+	FindUserPermissions(usrId uuid.UUID) (*[]model.UsersPermissions, error)
+	FindRolePermissions(roleIds *[]int64) (*[]model.RolesPermissions, error)
+}

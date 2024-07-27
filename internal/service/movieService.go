@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/go-jet/jet/v2/qrm"
 	"github.com/pkg/errors"
 	"kinolove/internal/entity/.gen/kinolove/public/model"
 	"kinolove/internal/repository"
@@ -47,7 +48,7 @@ func (m *MovieServiceImpl) FindById(id int64) (dto.MovieSingleResponse, *ServErr
 func (m *MovieServiceImpl) FindAll() (dto.MovieListResponse, *ServErr) {
 	movies, err := m.movieRepo.FindAll()
 
-	if err != nil {
+	if err != nil && errors.Is(err, qrm.ErrNoRows) {
 		return dto.MovieListResponse{}, InternalError(err)
 	}
 
