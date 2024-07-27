@@ -12,7 +12,6 @@ type ServErr struct {
 }
 
 func BadRequest(err error, msg string) *ServErr {
-
 	return &ServErr{
 		Code: 400,
 		Msg:  msg,
@@ -43,5 +42,23 @@ func MethodNotAllowed(msg string) *ServErr {
 		Code: 405,
 		Msg:  msg,
 		Time: time.Now().UTC(),
+	}
+}
+
+func Unauthorized(err error) *ServErr {
+	return &ServErr{
+		Code: 401,
+		Msg:  "User is unauthorized",
+		Time: time.Now().UTC(),
+		Err:  err,
+	}
+}
+
+func Forbidden(err error) *ServErr {
+	return &ServErr{
+		Code: 403,
+		Msg:  "Forbidden",
+		Time: time.Now().UTC(),
+		Err:  err,
 	}
 }

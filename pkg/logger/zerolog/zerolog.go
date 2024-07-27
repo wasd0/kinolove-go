@@ -44,6 +44,25 @@ func (logger *Zerolog) Fatalf(err error, format string, args ...interface{}) {
 	logger.log.Fatal().Err(err).Msgf(format, args)
 }
 
+func (logger *Zerolog) Error(err error, msg string) {
+	if err == nil {
+		return
+	}
+	logger.log.Err(err).Msg(msg)
+}
+
+func (logger *Zerolog) Errorf(err error, format string, args ...interface{}) {
+	if err == nil {
+		return
+	}
+
+	if args == nil {
+		args = []interface{}{}
+	}
+
+	logger.log.Err(err).Msgf(format, args)
+}
+
 // MustSetUp setups zerolog. Returns zerolog object and callback function
 func MustSetUp(cfg *config.Config) (*Zerolog, app.Callback) {
 	var (
@@ -65,7 +84,7 @@ func MustSetUp(cfg *config.Config) (*Zerolog, app.Callback) {
 
 	zerolog.SetGlobalLevel(level)
 
-	zeroLogger := zerolog.New(output).With().CallerWithSkipFrameCount(3).Timestamp().Logger()
+	zeroLogger := zerolog.New(output).With().Stack().CallerWithSkipFrameCount(3).Timestamp().Logger()
 	logger := &Zerolog{log: &zeroLogger}
 
 	return logger, func(ctx context.Context) error {

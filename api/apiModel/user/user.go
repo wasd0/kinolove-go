@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/pkg/errors"
 	"kinolove/internal/service/dto"
+	"kinolove/internal/utils/validator"
 	"net/http"
 )
 
@@ -11,11 +12,11 @@ type ReqUserCreate struct {
 }
 
 func (r ReqUserCreate) Bind(_ *http.Request) error {
-	if len(r.Username) < 5 {
+	if !validator.ValidateUsername(r.Username) {
 		return errors.New("username is too short")
 	}
 
-	if len(r.Password) < 8 {
+	if !validator.ValidatePassword(r.Password) {
 		return errors.New("password is too short")
 	}
 
@@ -27,11 +28,11 @@ type ReqUserUpdate struct {
 }
 
 func (r ReqUserUpdate) Bind(_ *http.Request) error {
-	if r.Username != nil && len(*r.Username) < 5 {
+	if r.Username != nil && !validator.ValidateUsername(*r.Username) {
 		return errors.New("username is too short")
 	}
 
-	if r.Password != nil && len(*r.Password) < 8 {
+	if r.Password != nil && !validator.ValidatePassword(*r.Password) {
 		return errors.New("password is too short")
 	}
 

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
 	"kinolove/internal/entity/.gen/kinolove/public/model"
@@ -29,7 +28,7 @@ func (r *UserPgRepo) GetById(id uuid.UUID) (*model.Users, error) {
 	err := stmt.Query(r.db, &usr)
 
 	if err != nil {
-		err = fmt.Errorf("%s > user not found by id %s", constants.Select, id)
+		return nil, err
 	}
 
 	return &usr, err
@@ -47,7 +46,7 @@ func (r *UserPgRepo) GetByUsername(username string) (*model.Users, error) {
 	err := stmt.Query(r.db, &usr)
 
 	if err != nil {
-		err = fmt.Errorf("%s > user not found by username %s", constants.Select, username)
+		return nil, err
 	}
 
 	return &usr, err
@@ -105,7 +104,7 @@ func (r *UserPgRepo) FindAll() (*[]*model.Users, error) {
 	err := stmt.Query(r.db, &users)
 
 	if err != nil {
-		return nil, errorUtils.GetPgxErr(err, constants.Select, "Failed find all users")
+		return nil, err
 	}
 
 	return &users, nil

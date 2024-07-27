@@ -34,13 +34,12 @@ func (u *MovieApi) Handle(router chi.Router) {
 
 func (u *MovieApi) findAll(w http.ResponseWriter, r *http.Request) {
 	movies, err := u.movieService.FindAll()
+	response := movie.ResMovieFindAll{Data: movies}
 
 	if err != nil {
 		renderError(w, r, err, u.log)
 		return
 	}
-
-	response := movie.ResMovieFindAll{Data: movies}
 
 	if renderErr := render.Render(w, r, &response); renderErr != nil {
 		u.log.Fatal(renderErr, "error rendering error")
