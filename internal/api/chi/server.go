@@ -19,9 +19,9 @@ type Server struct {
 	server *http.Server
 }
 
-func SetupServer(cfg *config.Config, log logger.Common, provider *apiProvider.ApiProvider, formatter *logger.LogFormatterImpl) *Server {
+func SetupServer(cfg *config.Config, log logger.Common, provider *apiProvider.ApiProvider, formatter *logger.LogFormatterImpl, jwt *jwt.Auth) *Server {
 	mux := chi.NewRouter()
-	auth := jwt.NewJwtAuth()
+	auth := jwt
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
 	server := &http.Server{Addr: addr, Handler: mux}
 
@@ -47,7 +47,7 @@ func (s *Server) MustRun() app.Callback {
 func setUpMiddlewares(cfg *config.Config, mux *chi.Mux, formatter *logger.LogFormatterImpl, auth *jwt.Auth) {
 	mux.Use(middleware.RequestLogger(formatter))
 	mux.Use(middleware.Timeout(cfg.Server.IdleTimeout))
-	mux.Use(jwtauth.Verifier(auth.Jwt))
+	mux.Use(jwtauth.Verifier(auth.GetJwt()))
 }
 
 func setUpRouters(mux *chi.Mux, provider *apiProvider.ApiProvider) {

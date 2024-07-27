@@ -11,6 +11,7 @@ import (
 	"kinolove/pkg/logger"
 	"kinolove/pkg/logger/zerolog"
 	"kinolove/pkg/utils/app"
+	"kinolove/pkg/utils/jwt"
 	"os/signal"
 	"syscall"
 )
@@ -29,14 +30,15 @@ func runServer(ctx context.Context) {
 	log, loggerCallback := zerolog.MustSetUp(cfg)
 	pg, storageCallback := storage.MustOpenPostgres(log)
 	logFormatter := logger.LogFormatterImpl{Logger: log}
+	auth := jwt.NewJwtAuth()
 
 	var (
 		repos    = repoProvider.InitRepos(pg.Db, log)
-		services = serviceProvider.InitServices(repos)
+		services = serviceProvider.InitServices(repos, auth)
 		apis     = apiProvider.InitApi(services, log)
 	)
 
-	api := chi.SetupServer(cfg, log, apis, &logFormatter)
+	api := chi.SetupServer(cfg, log, apis, &logFormatter, auth)
 	callback := api.MustRun()
 
 	closer.Add(loggerCallback)

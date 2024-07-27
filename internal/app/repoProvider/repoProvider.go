@@ -15,6 +15,8 @@ type RepoProvider struct {
 
 	user  repository.UserRepository
 	movie repository.MovieRepository
+	perm  repository.PermissionRepository
+	role  repository.RoleRepository
 }
 
 func InitRepos(db *sql.DB, log logger.Common) *RepoProvider {
@@ -53,4 +55,24 @@ func (r *RepoProvider) MovieRepo() repository.MovieRepository {
 	repo := repository.NewMoviesRepository(r.Storage())
 	r.movie = repo
 	return r.movie
+}
+
+func (r *RepoProvider) RoleRepo() repository.RoleRepository {
+	if r.role != nil {
+		return r.role
+	}
+
+	repo := repository.NewRoleRepository(r.Storage())
+	r.role = repo
+	return r.role
+}
+
+func (r *RepoProvider) PermissionRepo() repository.PermissionRepository {
+	if r.perm != nil {
+		return r.perm
+	}
+
+	repo := repository.NewPermissionRepository(r.Storage())
+	r.perm = repo
+	return r.perm
 }

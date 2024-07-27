@@ -3,18 +3,23 @@ package serviceProvider
 import (
 	"kinolove/internal/app/repoProvider"
 	"kinolove/internal/service"
+	"kinolove/pkg/utils/jwt"
 )
 
 type ServiceProvider struct {
 	provider *repoProvider.RepoProvider
 
+	jwt   *jwt.Auth
 	user  service.UserService
 	movie service.MovieService
 	login service.LoginService
+	auth  service.AuthService
+	role  service.RoleService
+	perm  service.PermissionService
 }
 
-func InitServices(provider *repoProvider.RepoProvider) *ServiceProvider {
-	return &ServiceProvider{provider: provider}
+func InitServices(provider *repoProvider.RepoProvider, jwt *jwt.Auth) *ServiceProvider {
+	return &ServiceProvider{provider: provider, jwt: jwt}
 }
 
 func (sp *ServiceProvider) UserService() service.UserService {
@@ -42,7 +47,37 @@ func (sp *ServiceProvider) LoginService() service.LoginService {
 		return sp.login
 	}
 
-	login := service.NewLoginService(sp.UserService())
+	login := service.NewLoginService(sp.UserService(), sp.AuthService(), sp.PermissionService())
 	sp.login = login
 	return sp.login
+}
+
+func (sp *ServiceProvider) AuthService() service.AuthService {
+	if sp.auth != nil {
+		return sp.auth
+	}
+
+	auth := service.NewAuthService(sp.jwt)
+	sp.auth = auth
+	return sp.auth
+}
+
+func (sp *ServiceProvider) RoleService() service.RoleService {
+	if sp.role != nil {
+		return sp.role
+	}
+
+	role := service.NewRoleService(sp.provider.RoleRepo())
+	sp.role = role
+	return sp.role
+}
+
+func (sp *ServiceProvider) PermissionService() service.PermissionService {
+	if sp.perm != nil {
+		return sp.perm
+	}
+
+	perm := service.NewPermissionService(sp.provider.PermissionRepo(), sp.RoleService())
+	sp.perm = perm
+	return sp.perm
 }

@@ -90,3 +90,13 @@ func (u *UserServiceImpl) Update(id uuid.UUID, request dto.UserUpdateRequest) *S
 
 	return nil
 }
+
+func (u *UserServiceImpl) GetByUsername(username string) (*model.Users, *ServErr) {
+	usr, err := u.userRepo.GetByUsername(username)
+
+	if err != nil {
+		return nil, BadRequest(err, fmt.Sprintf("user with username %s not found", username))
+	}
+
+	return usr, nil
+}
