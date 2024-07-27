@@ -27,7 +27,7 @@ func (m *MoviePgRepo) GetById(id int64) (*model.Movies, error) {
 	err := stmt.Query(m.db, &movie)
 
 	if err != nil {
-		return nil, errorUtils.GetPgxErr(err, constants.Select, "error while fetching movies")
+		return nil, err
 	}
 
 	return &movie, nil
@@ -65,7 +65,7 @@ func (m *MoviePgRepo) FindAll() (*[]*model.Movies, error) {
 	err := stmt.Query(m.db, &movies)
 
 	if err != nil {
-		return nil, errorUtils.GetPgxErr(err, constants.Select, "Failed find all movies")
+		return nil, err
 	}
 
 	return &movies, nil
