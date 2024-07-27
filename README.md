@@ -43,3 +43,16 @@ cd path/to/project && docker compose up -d
 ```bash
 cd path/to/project && make run
 ```
+
+## Features
+
+- ### <del> JWT auth </del>
+- ### <del>Roles and permission<del>
+- ### Refresh token logic
+- ### <del>Core api</del>
+- ### Frontend part
+- ### Movie parsing
+- ### Admin panel
+- ### User panel
+- ### Comments
+- ### Rates
