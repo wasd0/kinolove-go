@@ -27,7 +27,7 @@ func (a *Auth) GetJwt() *jwtauth.JWTAuth {
 
 func (a *Auth) Encode(token *Token) (string, error) {
 	claims := make(map[string]interface{}, 3)
-	claims["sub"] = token.Sub
+	claims["sub"] = token.Sub.String()
 	claims["user_permissions"] = token.UserPerms
 	claims["role_permissions"] = token.RolePerms
 	jwtauth.SetExpiryIn(claims, token.ExpIn)

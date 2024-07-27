@@ -9,7 +9,9 @@ func PermissionToJwt(perms *dto.AllUserPermission) (*map[int64]jwt.Permission, *
 	var rolePerms, userPerms map[int64]jwt.Permission
 
 	if perms == nil {
-		return nil, nil
+		u := make(map[int64]jwt.Permission)
+		r := make(map[int64]jwt.Permission)
+		return &u, &r
 	}
 
 	if perms.UserPerms != nil {
@@ -22,6 +24,8 @@ func PermissionToJwt(perms *dto.AllUserPermission) (*map[int64]jwt.Permission, *
 			}
 		}
 
+	} else {
+		userPerms = make(map[int64]jwt.Permission)
 	}
 
 	if perms.RolePerms != nil {
@@ -33,6 +37,8 @@ func PermissionToJwt(perms *dto.AllUserPermission) (*map[int64]jwt.Permission, *
 				GlobalLvl: perm.GlobalLevel,
 			}
 		}
+	} else {
+		rolePerms = make(map[int64]jwt.Permission)
 	}
 
 	return &userPerms, &rolePerms
