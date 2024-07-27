@@ -8,8 +8,7 @@
 package model
 
 type Permissions struct {
-	ID             int64 `sql:"primary_key"`
-	Name           string
-	Description    *string
-	DefaultLevelID *int16
+	ID          int64 `sql:"primary_key"`
+	Name        string
+	Description *string
 }

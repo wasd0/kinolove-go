@@ -14,7 +14,7 @@ type ChiApi interface {
 	Handle(router chi.Router)
 }
 
-func renderError(w http.ResponseWriter, r *http.Request, servErr *service.ServErr, log logger.Common) {
+func RenderError(w http.ResponseWriter, r *http.Request, servErr *service.ServErr, log logger.Common) {
 	renderErr := render.Render(w, r, apiModel.NewErrRenderer(servErr))
 	if renderErr != nil {
 		log.Fatal(renderErr, "rendering error")

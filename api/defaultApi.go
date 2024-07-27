@@ -15,11 +15,11 @@ func NewDefaultApi(log logger.Common) *DefaultApi {
 }
 
 func (api *DefaultApi) NotFound(w http.ResponseWriter, r *http.Request) {
-	renderError(w, r, service.NotFound("Page not found"), api.log)
+	RenderError(w, r, service.NotFound("Page not found"), api.log)
 	return
 }
 
 func (api *DefaultApi) MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
-	renderError(w, r, service.MethodNotAllowed("Method is not allowed"), api.log)
+	RenderError(w, r, service.MethodNotAllowed("Method is not allowed"), api.log)
 	return
 }
