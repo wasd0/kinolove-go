@@ -17,10 +17,9 @@ type permissionsTable struct {
 	postgres.Table
 
 	// Columns
-	ID             postgres.ColumnInteger
-	Name           postgres.ColumnString
-	Description    postgres.ColumnString
-	DefaultLevelID postgres.ColumnInteger
+	ID          postgres.ColumnInteger
+	Name        postgres.ColumnString
+	Description postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -61,22 +60,20 @@ func newPermissionsTable(schemaName, tableName, alias string) *PermissionsTable 
 
 func newPermissionsTableImpl(schemaName, tableName, alias string) permissionsTable {
 	var (
-		IDColumn             = postgres.IntegerColumn("id")
-		NameColumn           = postgres.StringColumn("name")
-		DescriptionColumn    = postgres.StringColumn("description")
-		DefaultLevelIDColumn = postgres.IntegerColumn("default_level_id")
-		allColumns           = postgres.ColumnList{IDColumn, NameColumn, DescriptionColumn, DefaultLevelIDColumn}
-		mutableColumns       = postgres.ColumnList{NameColumn, DescriptionColumn, DefaultLevelIDColumn}
+		IDColumn          = postgres.IntegerColumn("id")
+		NameColumn        = postgres.StringColumn("name")
+		DescriptionColumn = postgres.StringColumn("description")
+		allColumns        = postgres.ColumnList{IDColumn, NameColumn, DescriptionColumn}
+		mutableColumns    = postgres.ColumnList{NameColumn, DescriptionColumn}
 	)
 
 	return permissionsTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:             IDColumn,
-		Name:           NameColumn,
-		Description:    DescriptionColumn,
-		DefaultLevelID: DefaultLevelIDColumn,
+		ID:          IDColumn,
+		Name:        NameColumn,
+		Description: DescriptionColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

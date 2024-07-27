@@ -3,13 +3,13 @@ package serviceProvider
 import (
 	"kinolove/internal/app/repoProvider"
 	"kinolove/internal/service"
-	"kinolove/pkg/utils/jwt"
+	"kinolove/pkg/utils/jwtUtils"
 )
 
 type ServiceProvider struct {
 	provider *repoProvider.RepoProvider
 
-	jwt   *jwt.Auth
+	jwt   *jwtUtils.Auth
 	user  service.UserService
 	movie service.MovieService
 	login service.LoginService
@@ -18,7 +18,7 @@ type ServiceProvider struct {
 	perm  service.PermissionService
 }
 
-func InitServices(provider *repoProvider.RepoProvider, jwt *jwt.Auth) *ServiceProvider {
+func InitServices(provider *repoProvider.RepoProvider, jwt *jwtUtils.Auth) *ServiceProvider {
 	return &ServiceProvider{provider: provider, jwt: jwt}
 }
 

@@ -1,10 +1,10 @@
-package jwt
+package jwtUtils
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/jwtauth"
-	"github.com/google/uuid"
+	"kinolove/internal/consts/perms"
 	"kinolove/pkg/constants"
 	"os"
 	"time"
@@ -27,14 +27,14 @@ func (a *Auth) GetJwt() *jwtauth.JWTAuth {
 
 func (a *Auth) Encode(token *Token) (string, error) {
 	claims := make(map[string]interface{}, 3)
-	claims["sub"] = token.Sub
-	claims["user_permissions"] = token.UserPerms
-	claims["role_permissions"] = token.RolePerms
+	claims[perms.UserPerms] = token.UserPerms
+	claims[perms.RolePerms] = token.RolePerms
+	claims[perms.Sub] = token.Sub
 	jwtauth.SetExpiryIn(claims, token.ExpIn)
 
 	_, tokString, err := a.jwt.Encode(claims)
 	if err != nil {
-		return "", fmt.Errorf("encode jwt error: %v", err)
+		return "", fmt.Errorf("encode jwtUtils error: %v", err)
 	}
 
 	return tokString, nil
@@ -60,18 +60,12 @@ func (a *Auth) Decode(token string) (*Token, error) {
 		}
 	}
 
-	if sub, isOk := jwtTok.Get("sub"); isOk {
-		res.Sub = sub.(uuid.UUID)
-	}
-
 	if expIn, isOk := jwtTok.Get("expIn"); isOk {
 		res.ExpIn = expIn.(time.Duration)
 	}
 
-	return res, nil
-}
+	sub := jwtTok.Subject()
+	res.Sub = sub
 
-func (a *Auth) Verify(token string) error {
-	_, err := jwtauth.VerifyToken(a.jwt, token)
-	return err
+	return res, nil
 }

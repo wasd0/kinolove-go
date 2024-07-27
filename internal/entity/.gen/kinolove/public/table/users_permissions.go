@@ -19,8 +19,7 @@ type usersPermissionsTable struct {
 	// Columns
 	UserID       postgres.ColumnString
 	PermissionID postgres.ColumnInteger
-	TargetLevel  postgres.ColumnInteger
-	GlobalLevel  postgres.ColumnInteger
+	Level        postgres.ColumnInteger
 	Cause        postgres.ColumnString
 	DateExpire   postgres.ColumnTimestampz
 
@@ -65,12 +64,11 @@ func newUsersPermissionsTableImpl(schemaName, tableName, alias string) usersPerm
 	var (
 		UserIDColumn       = postgres.StringColumn("user_id")
 		PermissionIDColumn = postgres.IntegerColumn("permission_id")
-		TargetLevelColumn  = postgres.IntegerColumn("target_level")
-		GlobalLevelColumn  = postgres.IntegerColumn("global_level")
+		LevelColumn        = postgres.IntegerColumn("level")
 		CauseColumn        = postgres.StringColumn("cause")
 		DateExpireColumn   = postgres.TimestampzColumn("date_expire")
-		allColumns         = postgres.ColumnList{UserIDColumn, PermissionIDColumn, TargetLevelColumn, GlobalLevelColumn, CauseColumn, DateExpireColumn}
-		mutableColumns     = postgres.ColumnList{TargetLevelColumn, GlobalLevelColumn, CauseColumn, DateExpireColumn}
+		allColumns         = postgres.ColumnList{UserIDColumn, PermissionIDColumn, LevelColumn, CauseColumn, DateExpireColumn}
+		mutableColumns     = postgres.ColumnList{LevelColumn, CauseColumn, DateExpireColumn}
 	)
 
 	return usersPermissionsTable{
@@ -79,8 +77,7 @@ func newUsersPermissionsTableImpl(schemaName, tableName, alias string) usersPerm
 		//Columns
 		UserID:       UserIDColumn,
 		PermissionID: PermissionIDColumn,
-		TargetLevel:  TargetLevelColumn,
-		GlobalLevel:  GlobalLevelColumn,
+		Level:        LevelColumn,
 		Cause:        CauseColumn,
 		DateExpire:   DateExpireColumn,
 

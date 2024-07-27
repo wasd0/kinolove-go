@@ -10,6 +10,5 @@ package model
 type RolesPermissions struct {
 	RoleID       int64 `sql:"primary_key"`
 	PermissionID int64 `sql:"primary_key"`
-	TargetLevel  int16
-	GlobalLevel  int16
+	Level        int16
 }

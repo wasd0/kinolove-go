@@ -3,6 +3,7 @@ package apiProvider
 import (
 	"kinolove/api"
 	"kinolove/internal/app/serviceProvider"
+	"kinolove/internal/middleware"
 	"kinolove/pkg/logger"
 )
 
@@ -14,10 +15,13 @@ type ApiProvider struct {
 	user       *api.UserApi
 	movie      *api.MovieApi
 	login      *api.LoginApi
+
+	authMid *middleware.AuthMiddleware
 }
 
 func InitApi(serviceProvider *serviceProvider.ServiceProvider, log logger.Common) *ApiProvider {
-	return &ApiProvider{serviceProvider: serviceProvider, log: log}
+	auth := middleware.NewAuthMiddleware(serviceProvider.AuthService(), log, api.RenderError)
+	return &ApiProvider{serviceProvider: serviceProvider, log: log, authMid: auth}
 }
 
 func (ap *ApiProvider) DefaultApi() *api.DefaultApi {
@@ -35,7 +39,7 @@ func (ap *ApiProvider) UserApi() *api.UserApi {
 		return ap.user
 	}
 
-	dApi := api.NewUserApi(ap.log, ap.serviceProvider.UserService())
+	dApi := api.NewUserApi(ap.log, ap.serviceProvider.UserService(), ap.authMid, ap.serviceProvider.AuthService())
 	ap.user = dApi
 	return ap.user
 }
@@ -45,7 +49,7 @@ func (ap *ApiProvider) MovieApi() *api.MovieApi {
 		return ap.movie
 	}
 
-	dApi := api.NewMovieApi(ap.log, ap.serviceProvider.MovieService())
+	dApi := api.NewMovieApi(ap.log, ap.serviceProvider.MovieService(), ap.authMid)
 	ap.movie = dApi
 	return ap.movie
 }
@@ -55,7 +59,7 @@ func (ap *ApiProvider) LoginApi() *api.LoginApi {
 		return ap.login
 	}
 
-	dApi := api.NewLoginApi(ap.log, ap.serviceProvider.LoginService())
+	dApi := api.NewLoginApi(ap.log, ap.serviceProvider.LoginService(), ap.authMid)
 	ap.login = dApi
 	return ap.login
 }

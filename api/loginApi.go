@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/go-chi/chi/v5"
 	"kinolove/api/apiModel/login"
+	"kinolove/internal/middleware"
 	"kinolove/internal/service"
 	"kinolove/pkg/logger"
 	"net/http"
@@ -11,10 +12,11 @@ import (
 type LoginApi struct {
 	loginService service.LoginService
 	log          logger.Common
+	auth         *middleware.AuthMiddleware
 }
 
-func NewLoginApi(log logger.Common, loginService service.LoginService) *LoginApi {
-	return &LoginApi{loginService, log}
+func NewLoginApi(log logger.Common, loginService service.LoginService, auth *middleware.AuthMiddleware) *LoginApi {
+	return &LoginApi{loginService, log, auth}
 }
 
 func (l *LoginApi) Register() (string, func(router chi.Router)) {
@@ -23,7 +25,7 @@ func (l *LoginApi) Register() (string, func(router chi.Router)) {
 
 func (l *LoginApi) Handle(router chi.Router) {
 	router.Post("/login", l.Login)
-	router.Post("/logout", l.Logout)
+	router.With(l.auth.Authenticator).Post("/logout", l.Logout)
 }
 
 func (l *LoginApi) Login(w http.ResponseWriter, r *http.Request) {
@@ -34,16 +36,16 @@ func (l *LoginApi) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := l.loginService.Login(w, loginRequest.LoginRequest); err != nil {
-		renderError(w, r, err, l.log)
+		RenderError(w, r, err, l.log)
 		return
 	}
 }
 
 func (l *LoginApi) Logout(w http.ResponseWriter, r *http.Request) {
-	err := l.loginService.Logout(w, r)
+	err := l.loginService.Logout(w)
 
 	if err != nil {
-		renderError(w, r, err, l.log)
+		RenderError(w, r, err, l.log)
 		return
 	}
 }

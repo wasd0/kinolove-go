@@ -19,8 +19,7 @@ type rolesPermissionsTable struct {
 	// Columns
 	RoleID       postgres.ColumnInteger
 	PermissionID postgres.ColumnInteger
-	TargetLevel  postgres.ColumnInteger
-	GlobalLevel  postgres.ColumnInteger
+	Level        postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -63,10 +62,9 @@ func newRolesPermissionsTableImpl(schemaName, tableName, alias string) rolesPerm
 	var (
 		RoleIDColumn       = postgres.IntegerColumn("role_id")
 		PermissionIDColumn = postgres.IntegerColumn("permission_id")
-		TargetLevelColumn  = postgres.IntegerColumn("target_level")
-		GlobalLevelColumn  = postgres.IntegerColumn("global_level")
-		allColumns         = postgres.ColumnList{RoleIDColumn, PermissionIDColumn, TargetLevelColumn, GlobalLevelColumn}
-		mutableColumns     = postgres.ColumnList{TargetLevelColumn, GlobalLevelColumn}
+		LevelColumn        = postgres.IntegerColumn("level")
+		allColumns         = postgres.ColumnList{RoleIDColumn, PermissionIDColumn, LevelColumn}
+		mutableColumns     = postgres.ColumnList{LevelColumn}
 	)
 
 	return rolesPermissionsTable{
@@ -75,8 +73,7 @@ func newRolesPermissionsTableImpl(schemaName, tableName, alias string) rolesPerm
 		//Columns
 		RoleID:       RoleIDColumn,
 		PermissionID: PermissionIDColumn,
-		TargetLevel:  TargetLevelColumn,
-		GlobalLevel:  GlobalLevelColumn,
+		Level:        LevelColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

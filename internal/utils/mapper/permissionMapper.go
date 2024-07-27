@@ -2,37 +2,36 @@ package mapper
 
 import (
 	"kinolove/internal/service/dto"
-	"kinolove/pkg/utils/jwt"
 )
 
-func PermissionToJwt(perms *dto.AllUserPermission) (*map[int64]jwt.Permission, *map[int64]jwt.Permission) {
-	var rolePerms, userPerms map[int64]jwt.Permission
+func PermissionToMaps(perms *dto.AllUserPermission) (*map[int64]int16, *map[int64]int16) {
+	var rolePerms, userPerms map[int64]int16
 
 	if perms == nil {
-		return nil, nil
+		u := make(map[int64]int16)
+		r := make(map[int64]int16)
+		return &u, &r
 	}
 
 	if perms.UserPerms != nil {
-		userPerms = make(map[int64]jwt.Permission, len(*perms.UserPerms))
+		userPerms = make(map[int64]int16, len(*perms.UserPerms))
 
 		for _, perm := range *perms.UserPerms {
-			userPerms[perm.PermissionID] = jwt.Permission{
-				TargetLvl: perm.TargetLevel,
-				GlobalLvl: perm.GlobalLevel,
-			}
+			userPerms[perm.PermissionID] = perm.Level
 		}
 
+	} else {
+		userPerms = make(map[int64]int16)
 	}
 
 	if perms.RolePerms != nil {
-		rolePerms = make(map[int64]jwt.Permission, len(*perms.RolePerms))
+		rolePerms = make(map[int64]int16, len(*perms.RolePerms))
 
 		for _, perm := range *perms.RolePerms {
-			rolePerms[perm.PermissionID] = jwt.Permission{
-				TargetLvl: perm.TargetLevel,
-				GlobalLvl: perm.GlobalLevel,
-			}
+			rolePerms[perm.PermissionID] = perm.Level
 		}
+	} else {
+		rolePerms = make(map[int64]int16)
 	}
 
 	return &userPerms, &rolePerms
