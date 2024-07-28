@@ -6,10 +6,10 @@ import (
 	"github.com/pkg/errors"
 	"kinolove/api/apiModel"
 	"kinolove/api/apiModel/user"
-	"kinolove/internal/consts/perms"
 	"kinolove/internal/middleware"
 	"kinolove/internal/service"
 	"kinolove/internal/service/dto"
+	"kinolove/pkg/constants/perms"
 	"kinolove/pkg/logger"
 	"net/http"
 

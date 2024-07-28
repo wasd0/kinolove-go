@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/jwtauth"
-	"kinolove/internal/consts/perms"
 	"kinolove/pkg/constants"
+	"kinolove/pkg/constants/perms"
 	"os"
 	"time"
 )
