@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth"
 	"github.com/pkg/errors"
 	"kinolove/internal/app/apiProvider"
@@ -48,6 +49,7 @@ func setUpMiddlewares(cfg *config.Config, mux *chi.Mux, formatter *logger.LogFor
 	mux.Use(middleware.RequestLogger(formatter))
 	mux.Use(middleware.Timeout(cfg.Server.IdleTimeout))
 	mux.Use(jwtauth.Verifier(auth.GetJwt()))
+	mux.Use(cors.AllowAll().Handler)
 }
 
 func setUpRouters(mux *chi.Mux, provider *apiProvider.ApiProvider) {

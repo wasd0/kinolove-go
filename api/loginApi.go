@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 	"kinolove/api/apiModel/login"
 	"kinolove/internal/middleware"
 	"kinolove/internal/service"
@@ -29,13 +30,14 @@ func (l *LoginApi) Handle(router chi.Router) {
 }
 
 func (l *LoginApi) Login(w http.ResponseWriter, r *http.Request) {
-	loginRequest := login.ReqLogin{}
-	if username, password, isOk := r.BasicAuth(); isOk {
-		loginRequest.Username = username
-		loginRequest.Password = password
+	request := login.ReqLogin{}
+
+	if err := render.Bind(r, &request); err != nil {
+		RenderError(w, r, service.BadRequest(err, "Failed get request body"), l.log)
+		return
 	}
 
-	if err := l.loginService.Login(w, loginRequest.LoginRequest); err != nil {
+	if err := l.loginService.Login(w, request.LoginRequest); err != nil {
 		RenderError(w, r, err, l.log)
 		return
 	}
