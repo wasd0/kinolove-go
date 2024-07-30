@@ -12,11 +12,12 @@ import (
 )
 
 type UserServiceImpl struct {
-	userRepo repository.UserRepository
+	userRepo    repository.UserRepository
+	authService AuthService
 }
 
-func NewUserService(repo repository.UserRepository) *UserServiceImpl {
-	return &UserServiceImpl{userRepo: repo}
+func NewUserService(repo repository.UserRepository, auth AuthService) *UserServiceImpl {
+	return &UserServiceImpl{userRepo: repo, authService: auth}
 }
 
 func (u *UserServiceImpl) CreateUser(request dto.UserCreateRequest) (uuid.UUID, *ServErr) {
@@ -59,7 +60,6 @@ func (u *UserServiceImpl) FindByUsername(username string) (dto.UserSingleRespons
 }
 
 func (u *UserServiceImpl) Update(id uuid.UUID, request dto.UserUpdateRequest) *ServErr {
-
 	usr, err := u.userRepo.GetById(id)
 
 	if err != nil {

@@ -23,7 +23,7 @@ type MovieService interface {
 }
 
 type LoginService interface {
-	Login(w http.ResponseWriter, request dto.LoginRequest) *ServErr
+	Login(w http.ResponseWriter, request dto.LoginRequest) (string, *ServErr)
 	Logout(w http.ResponseWriter) *ServErr
 }
 

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/pkg/errors"
 	"kinolove/internal/service/dto"
 	"net/http"
 )
@@ -21,32 +22,33 @@ func NewLoginService(us UserService,
 	}
 }
 
-func (l *LoginServiceImpl) Login(w http.ResponseWriter, request dto.LoginRequest) *ServErr {
+func (l *LoginServiceImpl) Login(w http.ResponseWriter, request dto.LoginRequest) (string, *ServErr) {
 	usr, userErr := l.userService.GetByUsername(request.Username)
 
 	if userErr != nil {
-		return userErr
+		return "", BadRequest(errors.New("Authentication error"),
+			"Invalid username or password")
 	}
 
 	if authErr := l.authService.Authenticate(usr, request.Password); authErr != nil {
-		return authErr
+		return "", authErr
 	}
 
 	perms, permErr := l.permissionService.GetAllUserPermissions(usr)
 
 	if permErr != nil {
-		return permErr
+		return "", permErr
 	}
 
 	jwtToken, authErr := l.authService.GetJwtToken(usr.ID, perms)
 
 	if authErr != nil {
-		return authErr
+		return "", authErr
 	}
 
 	w.Header().Add("Set-Cookie", "jwt="+jwtToken)
 
-	return nil
+	return jwtToken, nil
 }
 
 func (l *LoginServiceImpl) Logout(w http.ResponseWriter) *ServErr {

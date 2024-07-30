@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"kinolove/api/apiModel"
 	"kinolove/api/apiModel/login"
 	"kinolove/internal/middleware"
 	"kinolove/internal/service"
@@ -37,9 +38,15 @@ func (l *LoginApi) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := l.loginService.Login(w, request.LoginRequest); err != nil {
+	if jwt, err := l.loginService.Login(w, request.LoginRequest); err != nil {
 		RenderError(w, r, err, l.log)
 		return
+	} else {
+		response := apiModel.RestResponse[string]{Data: &jwt}
+		if renderErr := render.Render(w, r, &response); renderErr != nil {
+			RenderError(w, r, err, l.log)
+		}
+
 	}
 }
 
