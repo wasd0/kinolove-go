@@ -27,7 +27,7 @@ func (sp *ServiceProvider) UserService() service.UserService {
 		return sp.user
 	}
 
-	user := service.NewUserService(sp.provider.UserRepo())
+	user := service.NewUserService(sp.provider.UserRepo(), sp.AuthService())
 	sp.user = user
 	return sp.user
 }

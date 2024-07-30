@@ -29,7 +29,7 @@ func (u *MovieApi) Register() (string, func(router chi.Router)) {
 }
 
 func (u *MovieApi) Handle(router chi.Router) {
-	router.Get("/", u.findAll)
+	router.With(u.auth.Authenticator).Get("/", u.findAll)
 	router.With(u.auth.HasPermission(perms.Movie, perms.Create)).Post("/", u.create)
 	router.Get("/{id}", u.findById)
 	router.With(u.auth.HasPermission(perms.Movie, perms.Edit)).Put("/{id}", u.update)
