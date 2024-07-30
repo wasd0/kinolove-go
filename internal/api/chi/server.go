@@ -49,7 +49,20 @@ func setUpMiddlewares(cfg *config.Config, mux *chi.Mux, formatter *logger.LogFor
 	mux.Use(middleware.RequestLogger(formatter))
 	mux.Use(middleware.Timeout(cfg.Server.IdleTimeout))
 	mux.Use(jwtauth.Verifier(auth.GetJwt()))
-	mux.Use(cors.AllowAll().Handler)
+	//mux.Use(cors.AllowAll().Handler)
+	mux.Use(cors.New(cors.Options{
+		AllowedOrigins: []string{"https://*", "http://localhost:*"},
+		AllowedMethods: []string{
+			http.MethodHead,
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+		},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+	}).Handler)
 }
 
 func setUpRouters(mux *chi.Mux, provider *apiProvider.ApiProvider) {
