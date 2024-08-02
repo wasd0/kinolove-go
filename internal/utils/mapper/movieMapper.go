@@ -26,7 +26,7 @@ func MapMovieToItemData(movie *Movies) dto.MovieItemData {
 		return dto.MovieItemData{}
 	}
 
-	return dto.MovieItemData{Title: movie.Title}
+	return dto.MovieItemData{Title: movie.Title, ID: movie.ID}
 }
 
 func MapUpdateRequestToMovie(request *dto.MovieUpdateRequest, movie *Movies) error {

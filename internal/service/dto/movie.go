@@ -15,6 +15,7 @@ type MovieSingleResponse struct {
 
 type MovieItemData struct {
 	Title string `json:"title"`
+	ID    int64  `json:"id"`
 }
 
 type MovieListResponse struct {
