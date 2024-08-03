@@ -1,5 +1,4 @@
-![logobg](https://github.com/user-attachments/assets/20d5d7e6-3e90-454f-921e-45fc458d5391)
-
+![logo](https://github.com/user-attachments/assets/5076cb8d-2ce6-4e19-85a9-8288b82b01ae)
 
 ## Requirements
 
