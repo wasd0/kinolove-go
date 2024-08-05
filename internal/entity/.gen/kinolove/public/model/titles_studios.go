@@ -7,7 +7,7 @@
 
 package model
 
-type TitleStudio struct {
+type TitlesStudios struct {
 	TitleID  *int64
 	StudioID *int64
 }

@@ -7,7 +7,7 @@
 
 package model
 
-type Studio struct {
+type Studios struct {
 	ID   int64 `sql:"primary_key"`
 	Name string
 }
