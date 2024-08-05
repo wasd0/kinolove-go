@@ -18,6 +18,8 @@ func UseSchema(schema string) {
 	Permissions = Permissions.FromSchema(schema)
 	Roles = Roles.FromSchema(schema)
 	RolesPermissions = RolesPermissions.FromSchema(schema)
+	Studios = Studios.FromSchema(schema)
+	TitlesStudios = TitlesStudios.FromSchema(schema)
 	Users = Users.FromSchema(schema)
 	UsersPermissions = UsersPermissions.FromSchema(schema)
 	UsersRoles = UsersRoles.FromSchema(schema)
