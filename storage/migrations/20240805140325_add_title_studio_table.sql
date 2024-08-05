@@ -3,7 +3,8 @@
 create table if not exists titles_studios
 (
     title_id bigint references movies(id),
-    studio_id bigint references studios(id)
+    studio_id bigint references studios(id),
+    primary key (studio_id, title_id)
 );
 -- +goose StatementEnd
 

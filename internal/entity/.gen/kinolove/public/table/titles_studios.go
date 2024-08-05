@@ -62,7 +62,7 @@ func newTitlesStudiosTableImpl(schemaName, tableName, alias string) titlesStudio
 		TitleIDColumn  = postgres.IntegerColumn("title_id")
 		StudioIDColumn = postgres.IntegerColumn("studio_id")
 		allColumns     = postgres.ColumnList{TitleIDColumn, StudioIDColumn}
-		mutableColumns = postgres.ColumnList{TitleIDColumn, StudioIDColumn}
+		mutableColumns = postgres.ColumnList{}
 	)
 
 	return titlesStudiosTable{

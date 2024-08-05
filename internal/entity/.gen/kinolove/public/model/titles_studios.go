@@ -8,6 +8,6 @@
 package model
 
 type TitlesStudios struct {
-	TitleID  *int64
-	StudioID *int64
+	TitleID  int64 `sql:"primary_key"`
+	StudioID int64 `sql:"primary_key"`
 }
