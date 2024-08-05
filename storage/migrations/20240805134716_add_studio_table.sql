@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-create table if not exists studio
+create table if not exists studios
 (
     id bigserial primary key,
     name varchar not null
@@ -9,5 +9,5 @@ create table if not exists studio
 
 -- +goose Down
 -- +goose StatementBegin
-drop table if exists studio;
+drop table if exists studios;
 -- +goose StatementEnd

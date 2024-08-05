@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-create table if not exists title_studio
+create table if not exists titles_studios
 (
     title_id bigint references movies(id),
     studio_id bigint references studio(id)
@@ -9,5 +9,5 @@ create table if not exists title_studio
 
 -- +goose Down
 -- +goose StatementBegin
-drop table if exists title_studio;
+drop table if exists titles_studios;
 -- +goose StatementEnd
