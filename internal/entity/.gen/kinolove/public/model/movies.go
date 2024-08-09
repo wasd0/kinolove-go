@@ -14,4 +14,5 @@ type Movies struct {
 	EpisodeCount    *int16
 	AlterTitles     *string
 	Description     *string
+	ImageURL        *string
 }
