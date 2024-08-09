@@ -35,7 +35,7 @@ func (u *UserApi) Register() (string, func(router chi.Router)) {
 
 func (u *UserApi) Handle(router chi.Router) {
 	router.Post("/", u.createUser)
-	router.Get("/{username}", u.findByUsername)
+	router.With(u.auth.Authenticator).Get("/{username}", u.findByUsername)
 	router.With(u.auth.HasPermission(perms.User, perms.Edit)).Put("/{id}", u.update)
 }
 
