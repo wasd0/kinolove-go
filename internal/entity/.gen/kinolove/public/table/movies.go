@@ -23,6 +23,7 @@ type moviesTable struct {
 	EpisodeCount    postgres.ColumnInteger
 	AlterTitles     postgres.ColumnString
 	Description     postgres.ColumnString
+	ImageURL        postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -69,8 +70,9 @@ func newMoviesTableImpl(schemaName, tableName, alias string) moviesTable {
 		EpisodeCountColumn    = postgres.IntegerColumn("episode_count")
 		AlterTitlesColumn     = postgres.StringColumn("alter_titles")
 		DescriptionColumn     = postgres.StringColumn("description")
-		allColumns            = postgres.ColumnList{IDColumn, TitleColumn, EpisodeDurationColumn, EpisodeCountColumn, AlterTitlesColumn, DescriptionColumn}
-		mutableColumns        = postgres.ColumnList{TitleColumn, EpisodeDurationColumn, EpisodeCountColumn, AlterTitlesColumn, DescriptionColumn}
+		ImageURLColumn        = postgres.StringColumn("image_url")
+		allColumns            = postgres.ColumnList{IDColumn, TitleColumn, EpisodeDurationColumn, EpisodeCountColumn, AlterTitlesColumn, DescriptionColumn, ImageURLColumn}
+		mutableColumns        = postgres.ColumnList{TitleColumn, EpisodeDurationColumn, EpisodeCountColumn, AlterTitlesColumn, DescriptionColumn, ImageURLColumn}
 	)
 
 	return moviesTable{
@@ -83,6 +85,7 @@ func newMoviesTableImpl(schemaName, tableName, alias string) moviesTable {
 		EpisodeCount:    EpisodeCountColumn,
 		AlterTitles:     AlterTitlesColumn,
 		Description:     DescriptionColumn,
+		ImageURL:        ImageURLColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

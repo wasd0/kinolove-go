@@ -30,3 +30,8 @@ type PermissionRepository interface {
 	FindUserPermissions(usrId uuid.UUID) (*[]model.UsersPermissions, error)
 	FindRolePermissions(roleIds *[]int64) (*[]model.RolesPermissions, error)
 }
+
+type GenreRepository interface {
+	Save(*model.Genres) error
+	FindAllByMovieId(int64) ([]model.Genres, error)
+}
