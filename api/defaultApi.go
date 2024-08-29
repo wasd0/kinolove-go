@@ -2,24 +2,22 @@ package api
 
 import (
 	"kinolove/internal/service"
-	"kinolove/pkg/logger"
 	"net/http"
 )
 
 type DefaultApi struct {
-	log logger.Common
 }
 
-func NewDefaultApi(log logger.Common) *DefaultApi {
-	return &DefaultApi{log: log}
+func NewDefaultApi() *DefaultApi {
+	return &DefaultApi{}
 }
 
 func (api *DefaultApi) NotFound(w http.ResponseWriter, r *http.Request) {
-	RenderError(w, r, service.NotFound("Page not found"), api.log)
+	RenderError(w, r, service.NotFound("Page not found"))
 	return
 }
 
 func (api *DefaultApi) MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
-	RenderError(w, r, service.MethodNotAllowed("Method is not allowed"), api.log)
+	RenderError(w, r, service.MethodNotAllowed("Method is not allowed"))
 	return
 }

@@ -4,12 +4,10 @@ import (
 	"kinolove/api"
 	"kinolove/internal/app/serviceProvider"
 	"kinolove/internal/middleware"
-	"kinolove/pkg/logger"
 )
 
 type ApiProvider struct {
 	serviceProvider *serviceProvider.ServiceProvider
-	log             logger.Common
 
 	defaultApi *api.DefaultApi
 	user       *api.UserApi
@@ -19,9 +17,9 @@ type ApiProvider struct {
 	authMid *middleware.AuthMiddleware
 }
 
-func InitApi(serviceProvider *serviceProvider.ServiceProvider, log logger.Common) *ApiProvider {
-	auth := middleware.NewAuthMiddleware(serviceProvider.AuthService(), log, api.RenderError)
-	return &ApiProvider{serviceProvider: serviceProvider, log: log, authMid: auth}
+func InitApi(serviceProvider *serviceProvider.ServiceProvider) *ApiProvider {
+	auth := middleware.NewAuthMiddleware(serviceProvider.AuthService(), api.RenderError)
+	return &ApiProvider{serviceProvider: serviceProvider, authMid: auth}
 }
 
 func (ap *ApiProvider) DefaultApi() *api.DefaultApi {
@@ -29,7 +27,7 @@ func (ap *ApiProvider) DefaultApi() *api.DefaultApi {
 		return ap.defaultApi
 	}
 
-	dApi := api.NewDefaultApi(ap.log)
+	dApi := api.NewDefaultApi()
 	ap.defaultApi = dApi
 	return ap.defaultApi
 }
@@ -39,7 +37,7 @@ func (ap *ApiProvider) UserApi() *api.UserApi {
 		return ap.user
 	}
 
-	dApi := api.NewUserApi(ap.log, ap.serviceProvider.UserService(), ap.authMid, ap.serviceProvider.AuthService())
+	dApi := api.NewUserApi(ap.serviceProvider.UserService(), ap.authMid, ap.serviceProvider.AuthService())
 	ap.user = dApi
 	return ap.user
 }
@@ -49,7 +47,7 @@ func (ap *ApiProvider) MovieApi() *api.MovieApi {
 		return ap.movie
 	}
 
-	dApi := api.NewMovieApi(ap.log, ap.serviceProvider.MovieService(), ap.authMid)
+	dApi := api.NewMovieApi(ap.serviceProvider.MovieService(), ap.authMid)
 	ap.movie = dApi
 	return ap.movie
 }
@@ -59,7 +57,7 @@ func (ap *ApiProvider) LoginApi() *api.LoginApi {
 		return ap.login
 	}
 
-	dApi := api.NewLoginApi(ap.log, ap.serviceProvider.LoginService(), ap.authMid)
+	dApi := api.NewLoginApi(ap.serviceProvider.LoginService(), ap.authMid)
 	ap.login = dApi
 	return ap.login
 }

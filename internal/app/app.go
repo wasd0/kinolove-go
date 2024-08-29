@@ -27,39 +27,39 @@ func Startup() {
 func runServer(ctx context.Context) {
 	cfg := config.MustRead()
 	closer := &app.Closer{}
-	log, loggerCallback := zerolog.MustSetUp(cfg)
-	pg, storageCallback := storage.MustOpenPostgres(log)
-	logFormatter := logger.LogFormatterImpl{Logger: log}
+	_, loggerCallback := zerolog.MustSetUp(cfg)
+	pg, storageCallback := storage.MustOpenPostgres()
+	logFormatter := logger.LogFormatterImpl{}
 	auth := jwtUtils.NewJwtAuth()
 
 	var (
-		repos    = repoProvider.InitRepos(pg.Db, log)
+		repos    = repoProvider.InitRepos(pg.Db)
 		services = serviceProvider.InitServices(repos, auth)
-		apis     = apiProvider.InitApi(services, log)
+		apis     = apiProvider.InitApi(services)
 	)
 
-	api := chi.SetupServer(cfg, log, apis, &logFormatter, auth)
+	api := chi.SetupServer(cfg, apis, &logFormatter, auth)
 	callback := api.MustRun()
 
 	closer.Add(loggerCallback)
 	closer.Add(storageCallback)
 	closer.Add(callback)
 
-	printStartMessage(log, cfg)
+	printStartMessage(cfg)
 
 	<-ctx.Done()
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.Server.Timeout)
 	defer cancel()
 
-	if err := closer.Close(shutdownCtx, log); err != nil {
-		log.Fatal(err, "Server close failed")
+	if err := closer.Close(shutdownCtx); err != nil {
+		logger.Log().Fatal(err, "Server close failed")
 	}
 }
 
-func printStartMessage(log logger.Common, cfg *config.Config) {
-	log.Info("Server started")
-	log.Infof("Host: %s", cfg.Server.Host)
-	log.Infof("Port: %s", cfg.Server.Port)
-	log.Infof("ENV: %s", cfg.Env)
+func printStartMessage(cfg *config.Config) {
+	logger.Log().Info("Server started")
+	logger.Log().Infof("Host: %s", cfg.Server.Host)
+	logger.Log().Infof("Port: %s", cfg.Server.Port)
+	logger.Log().Infof("ENV: %s", cfg.Env)
 }

@@ -16,12 +16,11 @@ import (
 
 type MovieApi struct {
 	movieService service.MovieService
-	log          logger.Common
 	auth         *middleware.AuthMiddleware
 }
 
-func NewMovieApi(log logger.Common, movieService service.MovieService, auth *middleware.AuthMiddleware) *MovieApi {
-	return &MovieApi{log: log, movieService: movieService, auth: auth}
+func NewMovieApi(movieService service.MovieService, auth *middleware.AuthMiddleware) *MovieApi {
+	return &MovieApi{movieService: movieService, auth: auth}
 }
 
 func (u *MovieApi) Register() (string, func(router chi.Router)) {
@@ -40,12 +39,12 @@ func (u *MovieApi) findAll(w http.ResponseWriter, r *http.Request) {
 	response := movie.ResMovieFindAll{Data: movies}
 
 	if err != nil {
-		RenderError(w, r, err, u.log)
+		RenderError(w, r, err)
 		return
 	}
 
 	if renderErr := render.Render(w, r, &response); renderErr != nil {
-		u.log.Fatal(renderErr, "error rendering error")
+		logger.Log().Fatal(renderErr, "error rendering error")
 	}
 
 }
@@ -54,16 +53,16 @@ func (u *MovieApi) create(w http.ResponseWriter, r *http.Request) {
 	request := movie.ReqMovieCreate{}
 
 	if err := render.Bind(r, &request); err != nil {
-		RenderError(w, r, service.BadRequest(err, "Failed get request body"), u.log)
+		RenderError(w, r, service.BadRequest(err, "Failed get request body"))
 		return
 	}
 
 	if id, err := u.movieService.CreateMovie(request.MovieCreateRequest); err != nil {
-		RenderError(w, r, err, u.log)
+		RenderError(w, r, err)
 	} else {
 		response := apiModel.RestResponse[int64]{Data: &id}
 		if renderErr := render.Render(w, r, &response); renderErr != nil {
-			RenderError(w, r, service.InternalError(renderErr), u.log)
+			RenderError(w, r, service.InternalError(renderErr))
 			return
 		}
 	}
@@ -74,16 +73,16 @@ func (u *MovieApi) findById(w http.ResponseWriter, r *http.Request) {
 	id, parseErr := strconv.ParseInt(idStr, 10, 64)
 
 	if parseErr != nil {
-		RenderError(w, r, service.InternalError(parseErr), u.log)
+		RenderError(w, r, service.InternalError(parseErr))
 		return
 	}
 
 	if m, err := u.movieService.FindById(id); err != nil {
-		RenderError(w, r, err, u.log)
+		RenderError(w, r, err)
 	} else {
 		response := apiModel.RestResponse[dto.MovieSingleResponse]{Data: &m}
 		if renderErr := render.Render(w, r, &response); renderErr != nil {
-			RenderError(w, r, err, u.log)
+			RenderError(w, r, err)
 		}
 	}
 }
@@ -92,7 +91,7 @@ func (u *MovieApi) update(w http.ResponseWriter, r *http.Request) {
 	req := movie.ReqMovieUpdate{}
 
 	if err := render.Bind(r, &req); err != nil {
-		RenderError(w, r, service.BadRequest(err, "Failed get request body"), u.log)
+		RenderError(w, r, service.BadRequest(err, "Failed get request body"))
 		return
 	}
 
@@ -101,13 +100,13 @@ func (u *MovieApi) update(w http.ResponseWriter, r *http.Request) {
 	id, parseErr := strconv.ParseInt(idStr, 10, 64)
 
 	if parseErr != nil {
-		RenderError(w, r, service.InternalError(parseErr), u.log)
+		RenderError(w, r, service.InternalError(parseErr))
 		return
 	}
 
 	err := u.movieService.Update(id, req.MovieUpdateRequest)
 
 	if err != nil {
-		RenderError(w, r, err, u.log)
+		RenderError(w, r, err)
 	}
 }

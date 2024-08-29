@@ -22,7 +22,7 @@ func (c *Closer) Add(callback Callback) {
 	c.buffer = append(c.buffer, callback)
 }
 
-func (c *Closer) Close(ctx context.Context, log logger.Common) error {
+func (c *Closer) Close(ctx context.Context) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
@@ -43,7 +43,7 @@ func (c *Closer) Close(ctx context.Context, log logger.Common) error {
 
 	select {
 	case <-complete:
-		log.Infof("[Closer] Processed %d messages", len(c.buffer))
+		logger.Log().Infof("[Closer] Processed %d messages", len(c.buffer))
 		break
 	case <-ctx.Done():
 		return fmt.Errorf("[Closer]: shutdown error:  %v", ctx.Err())
