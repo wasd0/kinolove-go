@@ -25,6 +25,10 @@ func MustOpenPostgres(log logger.Common) (*PgStorage, app.Callback) {
 		log.Fatalf(err, "%s Failed to open connection to database", constants.OpenConnect)
 	}
 
+	if err := db.Ping(); err != nil {
+		log.Fatal(err, "postgres ping failed")
+	}
+
 	return &PgStorage{Db: db}, func(ctx context.Context) error {
 		log.Info("Database closing...")
 		return db.Close()
