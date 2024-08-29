@@ -8,6 +8,7 @@ import (
 	"kinolove/internal/repository"
 	"kinolove/internal/service/dto"
 	"kinolove/internal/utils/mapper"
+	"kinolove/pkg/logger"
 )
 
 type MovieServiceImpl struct {
@@ -48,7 +49,8 @@ func (m *MovieServiceImpl) FindById(id int64) (dto.MovieSingleResponse, *ServErr
 func (m *MovieServiceImpl) FindAll() (dto.MovieListResponse, *ServErr) {
 	movies, err := m.movieRepo.FindAll()
 
-	if err != nil && errors.Is(err, qrm.ErrNoRows) {
+	if err != nil && !errors.Is(err, qrm.ErrNoRows) {
+		logger.Log().Error(err, "Movie service > find all")
 		return dto.MovieListResponse{}, InternalError(err)
 	}
 
