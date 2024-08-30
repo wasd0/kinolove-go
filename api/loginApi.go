@@ -7,18 +7,16 @@ import (
 	"kinolove/api/apiModel/login"
 	"kinolove/internal/middleware"
 	"kinolove/internal/service"
-	"kinolove/pkg/logger"
 	"net/http"
 )
 
 type LoginApi struct {
 	loginService service.LoginService
-	log          logger.Common
 	auth         *middleware.AuthMiddleware
 }
 
-func NewLoginApi(log logger.Common, loginService service.LoginService, auth *middleware.AuthMiddleware) *LoginApi {
-	return &LoginApi{loginService, log, auth}
+func NewLoginApi(loginService service.LoginService, auth *middleware.AuthMiddleware) *LoginApi {
+	return &LoginApi{loginService, auth}
 }
 
 func (l *LoginApi) Register() (string, func(router chi.Router)) {
@@ -34,17 +32,17 @@ func (l *LoginApi) Login(w http.ResponseWriter, r *http.Request) {
 	request := login.ReqLogin{}
 
 	if err := render.Bind(r, &request); err != nil {
-		RenderError(w, r, service.BadRequest(err, "Failed get request body"), l.log)
+		RenderError(w, r, service.BadRequest(err, "Failed get request body"))
 		return
 	}
 
 	if jwt, err := l.loginService.Login(w, request.LoginRequest); err != nil {
-		RenderError(w, r, err, l.log)
+		RenderError(w, r, err)
 		return
 	} else {
 		response := apiModel.RestResponse[string]{Data: &jwt}
 		if renderErr := render.Render(w, r, &response); renderErr != nil {
-			RenderError(w, r, err, l.log)
+			RenderError(w, r, err)
 		}
 
 	}
@@ -54,7 +52,7 @@ func (l *LoginApi) Logout(w http.ResponseWriter, r *http.Request) {
 	err := l.loginService.Logout(w)
 
 	if err != nil {
-		RenderError(w, r, err, l.log)
+		RenderError(w, r, err)
 		return
 	}
 }

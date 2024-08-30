@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"kinolove/pkg/config"
+	"kinolove/pkg/logger"
 	"kinolove/pkg/utils/app"
 	"kinolove/pkg/utils/osUtils"
 	"os"
@@ -85,10 +86,12 @@ func MustSetUp(cfg *config.Config) (*Zerolog, app.Callback) {
 	zerolog.SetGlobalLevel(level)
 
 	zeroLogger := zerolog.New(output).With().Stack().CallerWithSkipFrameCount(3).Timestamp().Logger()
-	logger := &Zerolog{log: &zeroLogger}
+	zero := &Zerolog{log: &zeroLogger}
 
-	return logger, func(ctx context.Context) error {
-		logger.Info("Log file closing...")
+	logger.Setup(zero)
+
+	return zero, func(ctx context.Context) error {
+		zero.Info("Log file closing...")
 
 		if file != nil {
 			return osUtils.CloseFile(file)

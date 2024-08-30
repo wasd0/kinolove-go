@@ -10,8 +10,7 @@ import (
 var isInitializedRepo = false
 
 type RepoProvider struct {
-	db  *sql.DB
-	log logger.Common
+	db *sql.DB
 
 	user  repository.UserRepository
 	movie repository.MovieRepository
@@ -19,19 +18,18 @@ type RepoProvider struct {
 	role  repository.RoleRepository
 }
 
-func InitRepos(db *sql.DB, log logger.Common) *RepoProvider {
+func InitRepos(db *sql.DB) *RepoProvider {
 
 	isInitializedRepo = true
 
 	return &RepoProvider{
-		db:  db,
-		log: log,
+		db: db,
 	}
 }
 
 func (r *RepoProvider) Storage() *sql.DB {
 	if !isInitializedRepo {
-		r.log.Fatal(errors.New("Init error"), "Provider is not initialized")
+		logger.Log().Fatal(errors.New("Init error"), "Provider is not initialized")
 	}
 
 	return r.db

@@ -16,11 +16,10 @@ import (
 )
 
 type Server struct {
-	log    logger.Common
 	server *http.Server
 }
 
-func SetupServer(cfg *config.Config, log logger.Common, provider *apiProvider.ApiProvider, formatter *logger.LogFormatterImpl, jwt *jwtUtils.Auth) *Server {
+func SetupServer(cfg *config.Config, provider *apiProvider.ApiProvider, formatter *logger.LogFormatterImpl, jwt *jwtUtils.Auth) *Server {
 	mux := chi.NewRouter()
 	auth := jwt
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
@@ -30,7 +29,6 @@ func SetupServer(cfg *config.Config, log logger.Common, provider *apiProvider.Ap
 	setUpRouters(mux, provider)
 
 	return &Server{
-		log:    log,
 		server: server,
 	}
 }
@@ -38,7 +36,7 @@ func SetupServer(cfg *config.Config, log logger.Common, provider *apiProvider.Ap
 func (s *Server) MustRun() app.Callback {
 	go func() {
 		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			s.log.Fatal(err, "http server start failed")
+			logger.Log().Fatal(err, "http server start failed")
 		}
 	}()
 
